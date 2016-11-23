@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace TabScreenFit
     class HistoryEntry
     {
         public string fileName { get; set; }
+        public string tabName { get; set; }
         public float fontSize { get; set; }
         public int yScroll { get; set; }
         public String view { get; set; }
@@ -18,6 +20,16 @@ namespace TabScreenFit
         override public String ToString()
         {
             return Path.GetFileNameWithoutExtension(fileName);
+        }
+    }
+    public class ComparerDateTime : IComparer
+    {
+        public int Compare(object x, object y)
+        {
+            HistoryEntry X = x as HistoryEntry;
+            HistoryEntry Y = y as HistoryEntry;
+
+            return X.AccessedDate.CompareTo(Y.AccessedDate);
         }
     }
 }

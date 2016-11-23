@@ -31,14 +31,16 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.historyListBox = new System.Windows.Forms.ListBox();
-            this.tabSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.tabTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.fontSmallerButton = new System.Windows.Forms.Button();
+            this.fontLargerButton = new System.Windows.Forms.Button();
             this.viewButton = new System.Windows.Forms.Button();
-            this.showButton = new System.Windows.Forms.Button();
+            this.openTabButton = new System.Windows.Forms.Button();
             this.panelButton = new System.Windows.Forms.Button();
             this.fontButton = new System.Windows.Forms.Button();
-            this.fontLargerButton = new System.Windows.Forms.Button();
-            this.fontSmallerButton = new System.Windows.Forms.Button();
+            this.tabSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.tabTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.moveToTopButton = new System.Windows.Forms.Button();
+            this.removeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -64,6 +66,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.removeButton);
+            this.splitContainer1.Panel1.Controls.Add(this.moveToTopButton);
             this.splitContainer1.Panel1.Controls.Add(this.historyListBox);
             // 
             // splitContainer1.Panel2
@@ -71,7 +75,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.fontSmallerButton);
             this.splitContainer1.Panel2.Controls.Add(this.fontLargerButton);
             this.splitContainer1.Panel2.Controls.Add(this.viewButton);
-            this.splitContainer1.Panel2.Controls.Add(this.showButton);
+            this.splitContainer1.Panel2.Controls.Add(this.openTabButton);
             this.splitContainer1.Panel2.Controls.Add(this.panelButton);
             this.splitContainer1.Panel2.Controls.Add(this.fontButton);
             this.splitContainer1.Panel2.Controls.Add(this.tabSplitContainer);
@@ -90,6 +94,74 @@
             this.historyListBox.Size = new System.Drawing.Size(263, 418);
             this.historyListBox.TabIndex = 7;
             this.historyListBox.SelectedIndexChanged += new System.EventHandler(this.historyListBox_SelectedIndexChanged);
+            // 
+            // fontSmallerButton
+            // 
+            this.fontSmallerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.fontSmallerButton.Location = new System.Drawing.Point(339, 27);
+            this.fontSmallerButton.Name = "fontSmallerButton";
+            this.fontSmallerButton.Size = new System.Drawing.Size(23, 23);
+            this.fontSmallerButton.TabIndex = 11;
+            this.fontSmallerButton.Text = "-";
+            this.fontSmallerButton.UseVisualStyleBackColor = true;
+            this.fontSmallerButton.Click += new System.EventHandler(this.fontSmallerButton_Click);
+            // 
+            // fontLargerButton
+            // 
+            this.fontLargerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.fontLargerButton.Location = new System.Drawing.Point(368, 27);
+            this.fontLargerButton.Name = "fontLargerButton";
+            this.fontLargerButton.Size = new System.Drawing.Size(23, 23);
+            this.fontLargerButton.TabIndex = 10;
+            this.fontLargerButton.Text = "+";
+            this.fontLargerButton.UseVisualStyleBackColor = true;
+            this.fontLargerButton.Click += new System.EventHandler(this.fontLargerButton_Click);
+            // 
+            // viewButton
+            // 
+            this.viewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.viewButton.Location = new System.Drawing.Point(397, 28);
+            this.viewButton.Name = "viewButton";
+            this.viewButton.Size = new System.Drawing.Size(108, 23);
+            this.viewButton.TabIndex = 8;
+            this.viewButton.Text = "Auto";
+            this.viewButton.UseVisualStyleBackColor = true;
+            this.viewButton.Click += new System.EventHandler(this.viewButton_Click);
+            // 
+            // openTabButton
+            // 
+            this.openTabButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.openTabButton.AutoSize = true;
+            this.openTabButton.Location = new System.Drawing.Point(178, 4);
+            this.openTabButton.Name = "openTabButton";
+            this.openTabButton.Size = new System.Drawing.Size(108, 23);
+            this.openTabButton.TabIndex = 7;
+            this.openTabButton.Text = "Open tab";
+            this.openTabButton.UseVisualStyleBackColor = true;
+            this.openTabButton.Click += new System.EventHandler(this.openTabButton_Click);
+            // 
+            // panelButton
+            // 
+            this.panelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelButton.Location = new System.Drawing.Point(397, 4);
+            this.panelButton.Name = "panelButton";
+            this.panelButton.Size = new System.Drawing.Size(108, 23);
+            this.panelButton.TabIndex = 2;
+            this.panelButton.Text = "Toggle Panel";
+            this.panelButton.UseVisualStyleBackColor = true;
+            this.panelButton.Click += new System.EventHandler(this.panelButton_Click);
+            // 
+            // fontButton
+            // 
+            this.fontButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.fontButton.AutoSize = true;
+            this.fontButton.Location = new System.Drawing.Point(288, 4);
+            this.fontButton.Name = "fontButton";
+            this.fontButton.Size = new System.Drawing.Size(108, 23);
+            this.fontButton.TabIndex = 3;
+            this.fontButton.Text = "Font";
+            this.fontButton.UseVisualStyleBackColor = true;
+            this.fontButton.Click += new System.EventHandler(this.fontButton_Click);
             // 
             // tabSplitContainer
             // 
@@ -115,73 +187,26 @@
             this.tabTextBox1.TabIndex = 6;
             this.tabTextBox1.Text = "";
             // 
-            // viewButton
+            // moveToTopButton
             // 
-            this.viewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewButton.Location = new System.Drawing.Point(397, 28);
-            this.viewButton.Name = "viewButton";
-            this.viewButton.Size = new System.Drawing.Size(108, 23);
-            this.viewButton.TabIndex = 8;
-            this.viewButton.Text = "Auto";
-            this.viewButton.UseVisualStyleBackColor = true;
-            this.viewButton.Click += new System.EventHandler(this.viewButton_Click);
+            this.moveToTopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.moveToTopButton.Location = new System.Drawing.Point(3, 392);
+            this.moveToTopButton.Name = "moveToTopButton";
+            this.moveToTopButton.Size = new System.Drawing.Size(82, 23);
+            this.moveToTopButton.TabIndex = 8;
+            this.moveToTopButton.Text = "Move to Top";
+            this.moveToTopButton.UseVisualStyleBackColor = true;
+            this.moveToTopButton.Click += new System.EventHandler(this.moveToTopButton_Click);
             // 
-            // showButton
+            // removeButton
             // 
-            this.showButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.showButton.AutoSize = true;
-            this.showButton.Location = new System.Drawing.Point(178, 4);
-            this.showButton.Name = "showButton";
-            this.showButton.Size = new System.Drawing.Size(108, 23);
-            this.showButton.TabIndex = 7;
-            this.showButton.Text = "Open tab";
-            this.showButton.UseVisualStyleBackColor = true;
-            this.showButton.Click += new System.EventHandler(this.showButton_Click);
-            // 
-            // panelButton
-            // 
-            this.panelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelButton.Location = new System.Drawing.Point(397, 4);
-            this.panelButton.Name = "panelButton";
-            this.panelButton.Size = new System.Drawing.Size(108, 23);
-            this.panelButton.TabIndex = 2;
-            this.panelButton.Text = "Toggle Panel";
-            this.panelButton.UseVisualStyleBackColor = true;
-            this.panelButton.Click += new System.EventHandler(this.panelButton_Click);
-            // 
-            // fontButton
-            // 
-            this.fontButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontButton.AutoSize = true;
-            this.fontButton.Location = new System.Drawing.Point(288, 4);
-            this.fontButton.Name = "fontButton";
-            this.fontButton.Size = new System.Drawing.Size(108, 23);
-            this.fontButton.TabIndex = 3;
-            this.fontButton.Text = "Font";
-            this.fontButton.UseVisualStyleBackColor = true;
-            this.fontButton.Click += new System.EventHandler(this.fontButton_Click);
-            // 
-            // fontLargerButton
-            // 
-            this.fontLargerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontLargerButton.Location = new System.Drawing.Point(368, 27);
-            this.fontLargerButton.Name = "fontLargerButton";
-            this.fontLargerButton.Size = new System.Drawing.Size(23, 23);
-            this.fontLargerButton.TabIndex = 10;
-            this.fontLargerButton.Text = "+";
-            this.fontLargerButton.UseVisualStyleBackColor = true;
-            this.fontLargerButton.Click += new System.EventHandler(this.fontLargerButton_Click);
-            // 
-            // fontSmallerButton
-            // 
-            this.fontSmallerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontSmallerButton.Location = new System.Drawing.Point(339, 27);
-            this.fontSmallerButton.Name = "fontSmallerButton";
-            this.fontSmallerButton.Size = new System.Drawing.Size(23, 23);
-            this.fontSmallerButton.TabIndex = 11;
-            this.fontSmallerButton.Text = "-";
-            this.fontSmallerButton.UseVisualStyleBackColor = true;
-            this.fontSmallerButton.Click += new System.EventHandler(this.fontSmallerButton_Click);
+            this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.removeButton.Location = new System.Drawing.Point(85, 392);
+            this.removeButton.Name = "removeButton";
+            this.removeButton.Size = new System.Drawing.Size(75, 23);
+            this.removeButton.TabIndex = 9;
+            this.removeButton.Text = "Remove";
+            this.removeButton.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -207,7 +232,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ListBox historyListBox;
-        private System.Windows.Forms.Button showButton;
+        private System.Windows.Forms.Button openTabButton;
         private System.Windows.Forms.Button panelButton;
         private System.Windows.Forms.Button fontButton;
         private System.Windows.Forms.RichTextBox tabTextBox1;
@@ -215,6 +240,8 @@
         private System.Windows.Forms.SplitContainer tabSplitContainer;
         private System.Windows.Forms.Button fontSmallerButton;
         private System.Windows.Forms.Button fontLargerButton;
+        private System.Windows.Forms.Button removeButton;
+        private System.Windows.Forms.Button moveToTopButton;
     }
 }
 
