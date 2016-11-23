@@ -39,12 +39,12 @@ namespace TabScreenFit
             if (args == null || args.Length == 0)
             {
                 // select most recent tab to start
-                if (historyListBox.Items.Count > 0)  this.historyListBox.SelectedIndex = 0;
+                if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
             }
             else
             {
                 MessageBox.Show(args[0]);
-                foreach(string s in args)
+                foreach (string s in args)
                 {
                     if (!(Path.GetExtension(s) == ".txt"))
                     {
@@ -59,6 +59,7 @@ namespace TabScreenFit
                         processFile(s);
                     }
                 }
+            
 
             }
 
@@ -66,6 +67,18 @@ namespace TabScreenFit
 
         private void MyInitializer()
         {
+            // Set window location
+            if (Properties.Settings.Default.WindowLocation != null)
+            {
+                this.Location = Properties.Settings.Default.WindowLocation;
+            }
+
+            // Set window size
+            if (Properties.Settings.Default.WindowSize != null)
+            {
+                this.Size = Properties.Settings.Default.WindowSize;
+            }
+
             // show 1 panel for tab view
             this.tabSplitContainer.Panel2Collapsed = true;
             this.tabSplitContainer.Panel2.Hide();
@@ -84,7 +97,10 @@ namespace TabScreenFit
 
             // read tab history panel from json
             readJson();
+
+
         }
+    
 
         private void readJson()
         {
@@ -186,7 +202,10 @@ namespace TabScreenFit
                 //    MessageBox.Show("tabName: " + history1.tabName + " fileName: " + fileName);
                     if (history1.tabName == fileName)
                     {
-                        history.Remove(history1);
+                        var itemToRemove = history.Single(h => h.fileName == history1.fileName);
+                        history.Remove(itemToRemove);
+                     //   MessageBox.Show("Found entry?: " + history.Remove(itemToRemove));
+                     //    MessageBox.Show("Updated tabName: " + history1.tabName + " fileName: " + fileName);
 
                         history1.AccessedDate = DateTime.Now;
                         history.Add(history1);
@@ -393,6 +412,29 @@ namespace TabScreenFit
             if (historyListBox.SelectedItem == null) return;
             //MessageBox.Show("Item: " + historyListBox.SelectedItem.ToString());
             updateAccessedDateJson(historyListBox.SelectedItem.ToString(), DateTime.Now);
+        }
+
+        private void removeButton_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Copy window location to app settings
+            Properties.Settings.Default.WindowLocation = this.Location;
+
+            // Copy window size to app settings
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.WindowSize = this.Size;
+            }
+            else
+            {
+                Properties.Settings.Default.WindowSize = this.RestoreBounds.Size;
+            }
+
+            // Save settings
+            Properties.Settings.Default.Save();
         }
     }
 

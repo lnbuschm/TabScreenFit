@@ -30,6 +30,8 @@
         {
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.removeButton = new System.Windows.Forms.Button();
+            this.moveToTopButton = new System.Windows.Forms.Button();
             this.historyListBox = new System.Windows.Forms.ListBox();
             this.fontSmallerButton = new System.Windows.Forms.Button();
             this.fontLargerButton = new System.Windows.Forms.Button();
@@ -39,8 +41,6 @@
             this.fontButton = new System.Windows.Forms.Button();
             this.tabSplitContainer = new System.Windows.Forms.SplitContainer();
             this.tabTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.moveToTopButton = new System.Windows.Forms.Button();
-            this.removeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -82,7 +82,28 @@
             this.splitContainer1.Size = new System.Drawing.Size(790, 418);
             this.splitContainer1.SplitterDistance = 263;
             this.splitContainer1.TabIndex = 0;
-            this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
+            // 
+            // removeButton
+            // 
+            this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.removeButton.Location = new System.Drawing.Point(85, 392);
+            this.removeButton.Name = "removeButton";
+            this.removeButton.Size = new System.Drawing.Size(75, 23);
+            this.removeButton.TabIndex = 9;
+            this.removeButton.Text = "Remove";
+            this.removeButton.UseVisualStyleBackColor = true;
+            this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
+            // 
+            // moveToTopButton
+            // 
+            this.moveToTopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.moveToTopButton.Location = new System.Drawing.Point(3, 392);
+            this.moveToTopButton.Name = "moveToTopButton";
+            this.moveToTopButton.Size = new System.Drawing.Size(82, 23);
+            this.moveToTopButton.TabIndex = 8;
+            this.moveToTopButton.Text = "Move to Top";
+            this.moveToTopButton.UseVisualStyleBackColor = true;
+            this.moveToTopButton.Click += new System.EventHandler(this.moveToTopButton_Click);
             // 
             // historyListBox
             // 
@@ -187,27 +208,6 @@
             this.tabTextBox1.TabIndex = 6;
             this.tabTextBox1.Text = "";
             // 
-            // moveToTopButton
-            // 
-            this.moveToTopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.moveToTopButton.Location = new System.Drawing.Point(3, 392);
-            this.moveToTopButton.Name = "moveToTopButton";
-            this.moveToTopButton.Size = new System.Drawing.Size(82, 23);
-            this.moveToTopButton.TabIndex = 8;
-            this.moveToTopButton.Text = "Move to Top";
-            this.moveToTopButton.UseVisualStyleBackColor = true;
-            this.moveToTopButton.Click += new System.EventHandler(this.moveToTopButton_Click);
-            // 
-            // removeButton
-            // 
-            this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.removeButton.Location = new System.Drawing.Point(85, 392);
-            this.removeButton.Name = "removeButton";
-            this.removeButton.Size = new System.Drawing.Size(75, 23);
-            this.removeButton.TabIndex = 9;
-            this.removeButton.Text = "Remove";
-            this.removeButton.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -215,7 +215,9 @@
             this.ClientSize = new System.Drawing.Size(790, 418);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Tab Viewer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
