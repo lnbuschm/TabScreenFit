@@ -23,15 +23,23 @@ public partial class Form1 : Form
         List<HistoryEntry> history = new List<HistoryEntry>();
         Single fontSize = 8.25F;
         String fontName = "";
+        String currentView = "Auto";
 
         public Form1()
         {
             InitializeComponent();
-            // tableLayoutPanel1.ColumnCount = 1; // default to 1 panel
-            splitContainer1.Panel1Collapsed = true;
-            splitContainer1.Panel1.Hide();
-            historyListBox.Visible = false;
+            // show 1 panel for tab view
+            tabSplitContainer.Panel2Collapsed = true;
+            tabSplitContainer.Panel2.Hide();
+            // show side panel and load saved width
+            splitContainer1.Panel1Collapsed = false;
+            splitContainer1.Panel1.Show();
+            historyListBox.Visible = true;
+            int panel1Width = Properties.Settings.Default.Panel1Width;
+            this.splitContainer1.SplitterDistance = panel1Width;
+            // load saved font and size
             fontName = Properties.Settings.Default.Font.Name.ToString();
+            fontSize = Properties.Settings.Default.FontSize;
             fontButton.Text = fontName;
             this.tabTextBox1.Font = new System.Drawing.Font(fontName,
                         fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -84,13 +92,13 @@ public partial class Form1 : Form
             {
                 MessageBox.Show("History not enabled." + jsonFile + " File errror: " + ex.ToString());
             }
-                // deserialize JSON directly from a file
+            // deserialize JSON directly from a file
             //    using(StreamReader file = File.OpenText(@"c:\movie.json"))
             //   {
             //        JsonSerializer serializer = new JsonSerializer();
             //        HistoryEntry history2 = (Movie)serializer.Deserialize(file, typeof(HistoryEntry));
             //    }
-
+            historyListBox.SelectedIndex = 0;
 
         }
 
@@ -107,7 +115,7 @@ public partial class Form1 : Form
             {
                 try
                 {
-                    string text = System.IO.File.ReadAllText(@openFileDialog1.FileName);
+                    string text = System.IO.File.ReadAllText(@openFileDialog1.FileName, Encoding.Default);
                     tabTextBox1.Text = text;
                     // Create object
                     HistoryEntry entry = new HistoryEntry
@@ -115,7 +123,6 @@ public partial class Form1 : Form
                         fileName = openFileDialog1.FileName,
                         CreatedDate = DateTime.Now,
                         AccessedDate = DateTime.Now,
-                        num = 0
                     };
                     // serialize JSON to a string and then write string to a file
                     File.AppendAllText(@jsonFile, JsonConvert.SerializeObject(entry));
@@ -204,7 +211,7 @@ public partial class Form1 : Form
             try
             {
                 var h = history.Find(file => Path.GetFileNameWithoutExtension(file.fileName) == historyListBox.SelectedItem.ToString());
-                string text = System.IO.File.ReadAllText(h.fileName);
+                string text = System.IO.File.ReadAllText(h.fileName, Encoding.Default);
                 tabTextBox1.Text = text;
             }
             catch (Exception ex)
@@ -216,6 +223,44 @@ public partial class Form1 : Form
         private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
         {
             Properties.Settings.Default["Panel1Width"] = this.splitContainer1.SplitterDistance;
+            Properties.Settings.Default.Save();
+        }
+
+        private void viewButton_Click(object sender, EventArgs e)
+        {
+            switch (currentView)
+            {
+                case "Auto":
+                    currentView = "1 split";
+                    break;
+                case "1 split":
+                    currentView = "2 splits";
+                    break;
+                case "2 splits":
+                    currentView = "3 splits";
+                    break;
+                case "3 splits":
+                    currentView = "Auto";
+                    break;
+            }
+            viewButton.Text = currentView;
+        }
+
+        private void fontLargerButton_Click(object sender, EventArgs e)
+        {
+            fontSize += 0.75F;
+            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
+                       fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            Properties.Settings.Default["FontSize"] = fontSize;
+            Properties.Settings.Default.Save();
+        }
+
+        private void fontSmallerButton_Click(object sender, EventArgs e)
+        {
+            fontSize -= 0.75F;
+            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
+                       fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            Properties.Settings.Default["FontSize"] = fontSize;
             Properties.Settings.Default.Save();
         }
     }

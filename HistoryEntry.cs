@@ -10,7 +10,9 @@ namespace TabScreenFit
     class HistoryEntry
     {
         public string fileName { get; set; }
-        public int num { get; set; }
+        public float fontSize { get; set; }
+        public int yScroll { get; set; }
+        public String view { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime AccessedDate { get; set; }
         override public String ToString()
