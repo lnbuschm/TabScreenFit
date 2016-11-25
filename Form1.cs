@@ -267,7 +267,27 @@ namespace TabScreenFit
             // tab that the user chose.
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                processFile(openFileDialog1.FileName);
+                bool duplicateFound = false;
+                // check if file already exists
+                foreach (HistoryEntry h in history)
+                {
+                    if (h.fileName == openFileDialog1.FileName)
+                    {
+                    //    MessageBox.Show("Duplicate found");
+                        updateAccessedDateJson(Path.GetFileNameWithoutExtension(openFileDialog1.FileName), DateTime.Now);
+                        duplicateFound = true;
+                        break;
+                    }
+                }
+         //       foreach (ListBox.ObjectCollection item in historyListBox.Items) {
+         //           if (item.)
+         //       }
+                // if not , process file normally
+                if (!duplicateFound) processFile(openFileDialog1.FileName);
+                else
+                {
+                    historyListBox.SelectedIndex = 0;
+                }
             }
             // write file info to json
 
