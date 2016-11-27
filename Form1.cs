@@ -21,16 +21,22 @@ namespace TabScreenFit
     //  add support for open with for multiple files
     //  fitting algorithm:
     //    find screensize, separate into 1/2
+    //  TODO:  need to add designator to displayed tab name for duplicate names but non duplicate filename
+    //  TODO?  Save current view history entry 
     public partial class Form1 : Form
     {
-        String jsonFile = "";
-        String jsonText = "";
+        string jsonFile = "";
+        string jsonText = "";
         JsonTextReader jsonReader;
         JsonSerializer jsonSerializer = new JsonSerializer();
         List<HistoryEntry> history = new List<HistoryEntry>();
+        Single defaultFontSize = 8.25F;
+        string defaultFontName = "Courier New";
         Single fontSize = 8.25F;
-        String fontName = "";
-        String currentView = "Auto";
+        string fontName = "";
+        string currentView = "Auto";
+        string currentFilename = "";
+        int currentHistoryEntryIndex;
 
         public Form1(string[] args)
         {
@@ -43,7 +49,7 @@ namespace TabScreenFit
             }
             else
             {
-                MessageBox.Show(args[0]);
+              //  MessageBox.Show(args[0]);
                 foreach (string s in args)
                 {
                     if (!(Path.GetExtension(s) == ".txt"))
@@ -56,13 +62,10 @@ namespace TabScreenFit
                     }
                     else
                     {
-                        processFile(s);
+                        processNewFile(s);
                     }
                 }
-            
-
             }
-
         }
 
         private void MyInitializer()
@@ -89,16 +92,14 @@ namespace TabScreenFit
             int panel1Width = Properties.Settings.Default.Panel1Width;
             this.splitContainer1.SplitterDistance = panel1Width;
             // load saved font and size
-            fontName = Properties.Settings.Default.Font.Name.ToString();
-            fontSize = Properties.Settings.Default.FontSize;
-            this.fontButton.Text = fontName;
+       //     fontName = Properties.Settings.Default.Font.Name.ToString();
+       //     fontSize = Properties.Settings.Default.FontSize;
+       //     this.fontButton.Text = fontName;
             this.tabTextBox1.Font = new System.Drawing.Font(fontName,
                         fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 
             // read tab history panel from json
             readJson();
-
-
         }
     
 
@@ -138,9 +139,7 @@ namespace TabScreenFit
                     //MessageBox.Show("file: " + h.fileName);
                     //       historyListBox.Text += Path.GetFileNameWithoutExtension(h.toString()) + "\n";
                     this.historyListBox.Items.Add(h.ToString());
-
                 }
-
             }
             catch (FileNotFoundException)
             {
@@ -169,6 +168,10 @@ namespace TabScreenFit
                 tabName = Path.GetFileNameWithoutExtension(fileName),
                 CreatedDate = DateTime.Now,
                 AccessedDate = DateTime.Now,
+                fontSize = defaultFontSize,
+                fontName = defaultFontName,
+                view = "Auto",
+                yScroll = 0,
             };
             try
             {
@@ -207,7 +210,7 @@ namespace TabScreenFit
                      //   MessageBox.Show("Found entry?: " + history.Remove(itemToRemove));
                      //    MessageBox.Show("Updated tabName: " + history1.tabName + " fileName: " + fileName);
 
-                        history1.AccessedDate = DateTime.Now;
+                        history1.AccessedDate = newAccessed;
                         history.Add(history1);
 
                         // update element in history list
@@ -234,7 +237,6 @@ namespace TabScreenFit
                     //MessageBox.Show("file: " + h.fileName);
                     //       historyListBox.Text += Path.GetFileNameWithoutExtension(h.toString()) + "\n";
                     this.historyListBox.Items.Add(h.ToString());
-
                 }
                 updateLeftPanel();
 
@@ -244,13 +246,129 @@ namespace TabScreenFit
                 MessageBox.Show("History error" + jsonFile + " File errror: " + ex.ToString());
             }
         }
+
+        // LNB : this function doesnt work yet
+        //   we want to read json file, update a specific field,  write changes to json file
+        private void updateFontsizeJson(string fileName, Single newFontsize)
+        {
+            try
+            {
+                jsonText = File.ReadAllText(@jsonFile);
+                string newJsonText = "";
+                jsonReader = new JsonTextReader(new StringReader(jsonText));
+                jsonReader.SupportMultipleContent = true;
+
+                while (true)
+                {
+                    if (!jsonReader.Read()) break;
+                    HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
+                    if (history1.fileName == fileName)
+                    {
+                        var itemToRemove = history.Single(h => h.fileName == history1.fileName);
+                        history.Remove(itemToRemove);
+
+                        history1.fontSize = newFontsize;
+                        history.Add(history1);
+                    }
+
+                    newJsonText += "\n" + JsonConvert.SerializeObject(history1);
+
+                }
+                // write new json
+                // serialize JSON to a string and then write string to a file
+                File.WriteAllText(@jsonFile, newJsonText);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("History error" + jsonFile + " File errror: " + ex.ToString());
+            }
+        }
+
+        private void updateYscrollJson(string fileName, int newYscroll)
+        {
+            try
+            {
+               // tabTextBox1.ScrollToCaret
+                jsonText = File.ReadAllText(@jsonFile);
+                string newJsonText = "";
+                jsonReader = new JsonTextReader(new StringReader(jsonText));
+                jsonReader.SupportMultipleContent = true;
+
+                while (true)
+                {
+                    if (!jsonReader.Read()) break;
+                    HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
+                    if (history1.fileName == fileName)
+                    {
+                        var itemToRemove = history.Single(h => h.fileName == history1.fileName);
+                        history.Remove(itemToRemove);
+
+                        history1.yScroll = newYscroll;
+                  //      tabTextBox1.SelectionStart = newYscroll
+
+                        history.Add(history1);
+                    }
+
+                    newJsonText += "\n" + JsonConvert.SerializeObject(history1);
+
+                }
+                // write new json
+                // serialize JSON to a string and then write string to a file
+                File.WriteAllText(@jsonFile, newJsonText);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("History error" + jsonFile + " File errror: " + ex.ToString());
+            }
+        }
+
+
+        private void updateFontnameJson(string fileName, string newFontName)
+        {
+            try
+            {
+                jsonText = File.ReadAllText(@jsonFile);
+                string newJsonText = "";
+                jsonReader = new JsonTextReader(new StringReader(jsonText));
+                jsonReader.SupportMultipleContent = true;
+
+                while (true)
+                {
+                    if (!jsonReader.Read()) break;
+                    HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
+                    if (history1.fileName == fileName)
+                    {
+                        var itemToRemove = history.Single(h => h.fileName == history1.fileName);
+                        history.Remove(itemToRemove);
+
+                        history1.fontName = newFontName;
+                        history.Add(history1);
+                    }
+
+                    newJsonText += "\n" + JsonConvert.SerializeObject(history1);
+
+                }
+                // write new json
+                // serialize JSON to a string and then write string to a file
+                File.WriteAllText(@jsonFile, newJsonText);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("History error" + jsonFile + " File errror: " + ex.ToString());
+            }
+        }
+
         // open file, read it, show it in main panel, save json info
-        private void processFile(string processFileName)
+        private void processNewFile(string processFileName)
         {
             try
             {
                 string text = System.IO.File.ReadAllText(@processFileName, Encoding.Default);
                 this.tabTextBox1.Text = text;
+                currentFilename = processFileName;
                 appendJson(@processFileName);
             }
             catch (Exception ex)
@@ -283,21 +401,15 @@ namespace TabScreenFit
          //           if (item.)
          //       }
                 // if not , process file normally
-                if (!duplicateFound) processFile(openFileDialog1.FileName);
-                else
-                {
-                    historyListBox.SelectedIndex = 0;
-                }
+                if (!duplicateFound) processNewFile(openFileDialog1.FileName);
+                else historyListBox.SelectedIndex = 0;
+                
             }
             // write file info to json
 
             // TODO: update left panel
             // TODO:  modify accessed date to NOW
             updateLeftPanel();
-        }
-
-        private void clearButton_Click(object sender, EventArgs e)
-        {
         }
 
         // Toggle panel on/off
@@ -350,8 +462,10 @@ namespace TabScreenFit
             // TODO: Save current font to JSON
             //Properties.Settings.Default["SomeProperty"] = "Some Value";
             //Properties.Settings.Default.Save(); // Saves settings in application configuration file
-            Properties.Settings.Default["Font"] = this.tabTextBox1.Font;
-            Properties.Settings.Default.Save();
+            //         Properties.Settings.Default["Font"] = this.tabTextBox1.Font;
+            //         Properties.Settings.Default.Save();
+            if (currentFilename != "") updateFontnameJson(currentFilename, fontName);
+
         }
 
         private void updateLeftPanel() // file name , not path
@@ -372,9 +486,27 @@ namespace TabScreenFit
             // find selection in history List
             try
             {
-                var h = history.Find(file => Path.GetFileNameWithoutExtension(file.fileName) == historyListBox.SelectedItem.ToString());
-                string text = System.IO.File.ReadAllText(h.fileName, Encoding.Default);
+                currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(historyListBox.SelectedItem.ToString(), StringComparison.Ordinal));
+            //    tabTextBox1.SelectionStart = newYscroll
+
+                //     var h = history.Find(file => Path.GetFileNameWithoutExtension(file.fileName) == historyListBox.SelectedItem.ToString());
+                //     string text = System.IO.File.ReadAllText(h.fileName, Encoding.Default);
+                //     currentFilename = h.fileName;
+                string text = System.IO.File.ReadAllText(history.ElementAt(currentHistoryEntryIndex).fileName, Encoding.Default);
+                fontSize = history.ElementAt(currentHistoryEntryIndex).fontSize;
+                fontName = history.ElementAt(currentHistoryEntryIndex).fontName;
+                this.tabTextBox1.Font = new System.Drawing.Font(fontName,
+                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                this.fontButton.Text = fontName;
                 tabTextBox1.Text = text;
+                // tabTextBox1.SelectionStart = history.ElementAt(currentHistoryEntryIndex).yScroll;
+                tabTextBox1.SelectionStart = history.ElementAt(currentHistoryEntryIndex).yScroll;
+                tabTextBox1.ScrollToCaret();
+                MessageBox.Show("tab selectionstart: " + history.ElementAt(currentHistoryEntryIndex).yScroll.ToString());
+          //      tabTextBox1. tabTextBox1.GetPositionFromCharIndex(0).Y
+                currentFilename = history.ElementAt(currentHistoryEntryIndex).fileName;
+
+                //   MessageBox.Show(history.ElementAt(historyListBox.SelectedIndex).tabName);
             }
             catch (Exception ex)
             {
@@ -414,8 +546,9 @@ namespace TabScreenFit
             fontSize += 0.75F;
             this.tabTextBox1.Font = new System.Drawing.Font(fontName,
                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            Properties.Settings.Default["FontSize"] = fontSize;
-            Properties.Settings.Default.Save();
+            if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
+       //     Properties.Settings.Default["FontSize"] = fontSize;
+       //     Properties.Settings.Default.Save();
         }
 
         private void fontSmallerButton_Click(object sender, EventArgs e)
@@ -423,8 +556,9 @@ namespace TabScreenFit
             fontSize -= 0.75F;
             this.tabTextBox1.Font = new System.Drawing.Font(fontName,
                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            Properties.Settings.Default["FontSize"] = fontSize;
-            Properties.Settings.Default.Save();
+            if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
+      //      Properties.Settings.Default["FontSize"] = fontSize;
+      //      Properties.Settings.Default.Save();
         }
 
         private void moveToTopButton_Click(object sender, EventArgs e)
@@ -455,6 +589,16 @@ namespace TabScreenFit
 
             // Save settings
             Properties.Settings.Default.Save();
+        }
+
+        // update y scroll in json before changing selection
+        private void historyListBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (currentFilename != "" ) updateYscrollJson(currentFilename, -tabTextBox1.GetPositionFromCharIndex(0).Y);
+            //    MessageBox.Show("Y scroll: " + tabTextBox1.SelectionStart.ToString());
+            MessageBox.Show("Y scroll: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString());
+
+            //      tabTextBox1.SelectionStart = newYscroll
         }
     }
 

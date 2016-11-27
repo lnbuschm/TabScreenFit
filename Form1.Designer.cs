@@ -115,6 +115,7 @@
             this.historyListBox.Size = new System.Drawing.Size(263, 418);
             this.historyListBox.TabIndex = 7;
             this.historyListBox.SelectedIndexChanged += new System.EventHandler(this.historyListBox_SelectedIndexChanged);
+            this.historyListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.historyListBox_MouseDown);
             // 
             // fontSmallerButton
             // 
