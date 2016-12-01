@@ -37,13 +37,13 @@ namespace TabScreenFit.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int Panel1Width {
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int HistoryPanelWidth {
             get {
-                return ((int)(this["Panel1Width"]));
+                return ((int)(this["HistoryPanelWidth"]));
             }
             set {
-                this["Panel1Width"] = value;
+                this["HistoryPanelWidth"] = value;
             }
         }
         

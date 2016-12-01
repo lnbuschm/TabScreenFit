@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.historySplitContainer = new System.Windows.Forms.SplitContainer();
             this.removeButton = new System.Windows.Forms.Button();
             this.moveToTopButton = new System.Windows.Forms.Button();
             this.historyListBox = new System.Windows.Forms.ListBox();
@@ -41,47 +41,57 @@
             this.fontButton = new System.Windows.Forms.Button();
             this.tabSplitContainer = new System.Windows.Forms.SplitContainer();
             this.tabTextBox1 = new System.Windows.Forms.RichTextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            this.tabSplitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.tabTextBox2 = new System.Windows.Forms.RichTextBox();
+            this.tabTextBox3 = new System.Windows.Forms.RichTextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.historySplitContainer)).BeginInit();
+            this.historySplitContainer.Panel1.SuspendLayout();
+            this.historySplitContainer.Panel2.SuspendLayout();
+            this.historySplitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabSplitContainer)).BeginInit();
             this.tabSplitContainer.Panel1.SuspendLayout();
+            this.tabSplitContainer.Panel2.SuspendLayout();
             this.tabSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tabSplitContainer2)).BeginInit();
+            this.tabSplitContainer2.Panel1.SuspendLayout();
+            this.tabSplitContainer2.Panel2.SuspendLayout();
+            this.tabSplitContainer2.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog1
             // 
-            this.openFileDialog1.FileName = "tab";
+            this.openFileDialog1.FileName = "tabfile.txt";
             this.openFileDialog1.Filter = "Text Files (*.txt)|*.txt|DOC Files (*.doc)|*.doc|RTF Files (*.rtf)|*.rtf|All file" +
     "s (*.*)|*.*";
-            this.openFileDialog1.Title = "Select a text file";
+            this.openFileDialog1.Multiselect = true;
+            this.openFileDialog1.Title = "Select tab text file(s)";
             // 
-            // splitContainer1
+            // historySplitContainer
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
+            this.historySplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.historySplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.historySplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.historySplitContainer.Name = "historySplitContainer";
             // 
-            // splitContainer1.Panel1
+            // historySplitContainer.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.removeButton);
-            this.splitContainer1.Panel1.Controls.Add(this.moveToTopButton);
-            this.splitContainer1.Panel1.Controls.Add(this.historyListBox);
+            this.historySplitContainer.Panel1.Controls.Add(this.removeButton);
+            this.historySplitContainer.Panel1.Controls.Add(this.moveToTopButton);
+            this.historySplitContainer.Panel1.Controls.Add(this.historyListBox);
             // 
-            // splitContainer1.Panel2
+            // historySplitContainer.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.fontSmallerButton);
-            this.splitContainer1.Panel2.Controls.Add(this.fontLargerButton);
-            this.splitContainer1.Panel2.Controls.Add(this.viewButton);
-            this.splitContainer1.Panel2.Controls.Add(this.openTabButton);
-            this.splitContainer1.Panel2.Controls.Add(this.panelButton);
-            this.splitContainer1.Panel2.Controls.Add(this.fontButton);
-            this.splitContainer1.Panel2.Controls.Add(this.tabSplitContainer);
-            this.splitContainer1.Size = new System.Drawing.Size(790, 418);
-            this.splitContainer1.SplitterDistance = 263;
-            this.splitContainer1.TabIndex = 0;
+            this.historySplitContainer.Panel2.Controls.Add(this.fontSmallerButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.fontLargerButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.viewButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.openTabButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.panelButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.fontButton);
+            this.historySplitContainer.Panel2.Controls.Add(this.tabSplitContainer);
+            this.historySplitContainer.Size = new System.Drawing.Size(790, 418);
+            this.historySplitContainer.SplitterDistance = 263;
+            this.historySplitContainer.TabIndex = 0;
+            this.historySplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // removeButton
             // 
@@ -194,6 +204,10 @@
             // tabSplitContainer.Panel1
             // 
             this.tabSplitContainer.Panel1.Controls.Add(this.tabTextBox1);
+            // 
+            // tabSplitContainer.Panel2
+            // 
+            this.tabSplitContainer.Panel2.Controls.Add(this.tabSplitContainer2);
             this.tabSplitContainer.Size = new System.Drawing.Size(523, 418);
             this.tabSplitContainer.SplitterDistance = 275;
             this.tabSplitContainer.TabIndex = 9;
@@ -208,32 +222,74 @@
             this.tabTextBox1.Size = new System.Drawing.Size(275, 418);
             this.tabTextBox1.TabIndex = 6;
             this.tabTextBox1.Text = "";
+            this.tabTextBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tabTextBox1_MouseDown);
+            this.tabTextBox1.DoubleClick += new System.EventHandler(this.tabTextBox1_DoubleClick);
+            // 
+            // tabSplitContainer2
+            // 
+            this.tabSplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSplitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.tabSplitContainer2.Name = "tabSplitContainer2";
+            // 
+            // tabSplitContainer2.Panel1
+            // 
+            this.tabSplitContainer2.Panel1.Controls.Add(this.tabTextBox2);
+            // 
+            // tabSplitContainer2.Panel2
+            // 
+            this.tabSplitContainer2.Panel2.Controls.Add(this.tabTextBox3);
+            this.tabSplitContainer2.Size = new System.Drawing.Size(244, 418);
+            this.tabSplitContainer2.SplitterDistance = 127;
+            this.tabSplitContainer2.TabIndex = 0;
+            // 
+            // tabTextBox2
+            // 
+            this.tabTextBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabTextBox2.Location = new System.Drawing.Point(0, 0);
+            this.tabTextBox2.Name = "tabTextBox2";
+            this.tabTextBox2.Size = new System.Drawing.Size(127, 418);
+            this.tabTextBox2.TabIndex = 0;
+            this.tabTextBox2.Text = "";
+            // 
+            // tabTextBox3
+            // 
+            this.tabTextBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabTextBox3.Location = new System.Drawing.Point(0, 0);
+            this.tabTextBox3.Name = "tabTextBox3";
+            this.tabTextBox3.Size = new System.Drawing.Size(113, 418);
+            this.tabTextBox3.TabIndex = 0;
+            this.tabTextBox3.Text = "";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(790, 418);
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.historySplitContainer);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Tab Viewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            this.splitContainer1.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.historySplitContainer.Panel1.ResumeLayout(false);
+            this.historySplitContainer.Panel2.ResumeLayout(false);
+            this.historySplitContainer.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.historySplitContainer)).EndInit();
+            this.historySplitContainer.ResumeLayout(false);
             this.tabSplitContainer.Panel1.ResumeLayout(false);
+            this.tabSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tabSplitContainer)).EndInit();
             this.tabSplitContainer.ResumeLayout(false);
+            this.tabSplitContainer2.Panel1.ResumeLayout(false);
+            this.tabSplitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tabSplitContainer2)).EndInit();
+            this.tabSplitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer historySplitContainer;
         private System.Windows.Forms.ListBox historyListBox;
         private System.Windows.Forms.Button openTabButton;
         private System.Windows.Forms.Button panelButton;
@@ -245,6 +301,9 @@
         private System.Windows.Forms.Button fontLargerButton;
         private System.Windows.Forms.Button removeButton;
         private System.Windows.Forms.Button moveToTopButton;
+        private System.Windows.Forms.SplitContainer tabSplitContainer2;
+        private System.Windows.Forms.RichTextBox tabTextBox2;
+        private System.Windows.Forms.RichTextBox tabTextBox3;
     }
 }
 
