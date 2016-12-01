@@ -37,7 +37,7 @@ namespace TabScreenFit
         string fontName = "";
         string currentView = "Auto"; // default currentview set in currentViewSM()
         string currentFilename = "";
-        int currentHistoryEntryIndex;
+      //  int currentHistoryEntryIndex;
         double linesPerScreen;
         RECT tabTextBox1Rect;
 
@@ -46,6 +46,8 @@ namespace TabScreenFit
         {
             InitializeComponent();
             MyInitializer();
+            if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+
             // check if program is opened using "open with.." on a txt file
             if (!(args == null || args.Length == 0))
             {
@@ -73,16 +75,14 @@ namespace TabScreenFit
                 updateLeftPanel();
                 // select most recent tab to start
                 if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
-
             }
-
-            tabTextBox1Rect = new RECT();
-
 
         }
 
         private void MyInitializer()
         {
+            tabTextBox1Rect = new RECT();
+
             // Set window location
             if (Properties.Settings.Default.WindowLocation != null)
             {
@@ -664,9 +664,10 @@ namespace TabScreenFit
             if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
             double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
             //    int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
-                int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
+            // works ?        int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
+            int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
 
-    // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
+            // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
 
             //     int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
             //    int lineToScroll = Convert.ToInt32(((double) -tabTextBox1.GetPositionFromCharIndex(0).Y / tabTextBox1.Font.Height) * linesPerScreen);// / tabTextBox1.Height;
@@ -685,23 +686,30 @@ namespace TabScreenFit
         private void tabTextBox1_MouseDown(object sender, MouseEventArgs e)
         {
 
+            return;             // debug below here
+
             double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
-            int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
+            int lineToScroll1 = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
 
             double dlinesToScroll = (-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height);// * linesPerScreen);// / tabTextBox1.Height;
-     ////       int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
-      //      int lineToScroll = Convert.ToInt32(Math.Floor((-1.0 *( tabTextBox1.GetPositionFromCharIndex(0).Y+tabTextBox1.Font.Height) / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
+            int lineToScroll2 = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
+            int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height-1)));// * linesPerScreen);// / tabTextBox1.Height;
+
+            //      int lineToScroll = Convert.ToInt32(Math.Floor((-1.0 *( tabTextBox1.GetPositionFromCharIndex(0).Y+tabTextBox1.Font.Height) / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
 
             int scrollCharIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScroll);
 
-            tabTextBox2.Text = "\n\n\n\n\n" + "selectionstart: " + tabTextBox1.SelectionStart.ToString()
-                   + ",\n textbox height=" + tabTextBox1.Height
-                   + ",\n caretposition =" + tabTextBox1.SelectionStart.ToString()
-                   + ",\n tabTextBox1.GetPositionFromCharIndex(0).Y: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString()
-                   + ",\n lines per screen =" + linesPerScreen
-                   + ",\n NumberOfVisibleLines = " + NumberOfVisibleLines
-                   + ",\n linesToScroll =" + lineToScroll.ToString()
-                   + ",\n dlinesToScroll = " + dlinesToScroll
+            tabTextBox2.Text = "\n\n\n\n\n" + "selectionstart: " + tabTextBox1.SelectionStart.ToString() + "\n"
+                   + ",\n tabTextBox1 height=" + tabTextBox1.Height + "\n"
+              //     + ",\n font height =" + tabTextBox1.Font. + "\n"
+
+                   + ",\n GetPositionFromCharIndex(0).Y: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString() + "\n"
+                   + ",\n font height =" + tabTextBox1.Font.Height.ToString() + "\n"
+                   + ",\n yposfromindex/pixelsperline =" + lineToScroll1 + "\n"
+                   + ",\n yposfromindex/fontheight =" + lineToScroll + "\n"
+                   + ",\n lines per screen =" + linesPerScreen + "\n"
+                   + ",\n NumberOfVisibleLines = " + NumberOfVisibleLines + "\n"
+                   + ",\n dlinesToScroll = " + dlinesToScroll + "\n"
                   + ",\n scrollCharIndex =" + scrollCharIndex.ToString()
                  ;
 
@@ -709,7 +717,6 @@ namespace TabScreenFit
         private void tabTextBox1_DoubleClick(object sender, EventArgs e)
         {
             tabTextBox1.ScrollToCaret();
-
         }
 
         private void calculateSize()
@@ -833,8 +840,6 @@ namespace TabScreenFit
             this.tabSplitContainer2.Panel2.Hide();
 
             this.tabSplitContainer.SplitterDistance = 550;
-
-
         }
 
         private void ShowThreeTabPanels()
@@ -858,7 +863,13 @@ namespace TabScreenFit
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref RECT lParam);
 
+        private void youtubeButton_Click(object sender, EventArgs e)
+        {
+            string searchquery = historyListBox.SelectedItem.ToString().Replace(' ', '+').Replace('-','+');  // use + instead of spaces
+            // open youtube browser and search for tabname
+            System.Diagnostics.Process.Start("https://www.youtube.com/results?search_query=" + searchquery);
 
+        }
     }
 
 }

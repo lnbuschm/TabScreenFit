@@ -30,9 +30,11 @@
         {
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.historySplitContainer = new System.Windows.Forms.SplitContainer();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.removeButton = new System.Windows.Forms.Button();
             this.moveToTopButton = new System.Windows.Forms.Button();
             this.historyListBox = new System.Windows.Forms.ListBox();
+            this.youtubeButton = new System.Windows.Forms.Button();
             this.fontSmallerButton = new System.Windows.Forms.Button();
             this.fontLargerButton = new System.Windows.Forms.Button();
             this.viewButton = new System.Windows.Forms.Button();
@@ -75,12 +77,14 @@
             // 
             // historySplitContainer.Panel1
             // 
+            this.historySplitContainer.Panel1.Controls.Add(this.textBox1);
             this.historySplitContainer.Panel1.Controls.Add(this.removeButton);
             this.historySplitContainer.Panel1.Controls.Add(this.moveToTopButton);
             this.historySplitContainer.Panel1.Controls.Add(this.historyListBox);
             // 
             // historySplitContainer.Panel2
             // 
+            this.historySplitContainer.Panel2.Controls.Add(this.youtubeButton);
             this.historySplitContainer.Panel2.Controls.Add(this.fontSmallerButton);
             this.historySplitContainer.Panel2.Controls.Add(this.fontLargerButton);
             this.historySplitContainer.Panel2.Controls.Add(this.viewButton);
@@ -93,12 +97,19 @@
             this.historySplitContainer.TabIndex = 0;
             this.historySplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(13, 366);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(96, 20);
+            this.textBox1.TabIndex = 10;
+            // 
             // removeButton
             // 
             this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.removeButton.Location = new System.Drawing.Point(85, 392);
             this.removeButton.Name = "removeButton";
-            this.removeButton.Size = new System.Drawing.Size(75, 23);
+            this.removeButton.Size = new System.Drawing.Size(75, 22);
             this.removeButton.TabIndex = 9;
             this.removeButton.Text = "Remove";
             this.removeButton.UseVisualStyleBackColor = true;
@@ -109,7 +120,7 @@
             this.moveToTopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.moveToTopButton.Location = new System.Drawing.Point(3, 392);
             this.moveToTopButton.Name = "moveToTopButton";
-            this.moveToTopButton.Size = new System.Drawing.Size(82, 23);
+            this.moveToTopButton.Size = new System.Drawing.Size(82, 22);
             this.moveToTopButton.TabIndex = 8;
             this.moveToTopButton.Text = "Move to Top";
             this.moveToTopButton.UseVisualStyleBackColor = true;
@@ -127,12 +138,25 @@
             this.historyListBox.SelectedIndexChanged += new System.EventHandler(this.historyListBox_SelectedIndexChanged);
             this.historyListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.historyListBox_MouseDown);
             // 
+            // youtubeButton
+            // 
+            this.youtubeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.youtubeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.youtubeButton.Location = new System.Drawing.Point(270, 35);
+            this.youtubeButton.Name = "youtubeButton";
+            this.youtubeButton.Size = new System.Drawing.Size(59, 22);
+            this.youtubeButton.TabIndex = 11;
+            this.youtubeButton.Text = "YouTube!";
+            this.youtubeButton.UseVisualStyleBackColor = true;
+            this.youtubeButton.Click += new System.EventHandler(this.youtubeButton_Click);
+            // 
             // fontSmallerButton
             // 
             this.fontSmallerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontSmallerButton.Location = new System.Drawing.Point(339, 27);
+            this.fontSmallerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fontSmallerButton.Name = "fontSmallerButton";
-            this.fontSmallerButton.Size = new System.Drawing.Size(23, 23);
+            this.fontSmallerButton.Location = new System.Drawing.Point(368, 35);
+            this.fontSmallerButton.Size = new System.Drawing.Size(22, 22);
             this.fontSmallerButton.TabIndex = 11;
             this.fontSmallerButton.Text = "-";
             this.fontSmallerButton.UseVisualStyleBackColor = true;
@@ -141,9 +165,10 @@
             // fontLargerButton
             // 
             this.fontLargerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontLargerButton.Location = new System.Drawing.Point(368, 27);
+            this.fontLargerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fontLargerButton.Location = new System.Drawing.Point(339, 35);
             this.fontLargerButton.Name = "fontLargerButton";
-            this.fontLargerButton.Size = new System.Drawing.Size(23, 23);
+            this.fontLargerButton.Size = new System.Drawing.Size(22, 22);
             this.fontLargerButton.TabIndex = 10;
             this.fontLargerButton.Text = "+";
             this.fontLargerButton.UseVisualStyleBackColor = true;
@@ -152,9 +177,10 @@
             // viewButton
             // 
             this.viewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewButton.Location = new System.Drawing.Point(397, 28);
+            this.viewButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.viewButton.Location = new System.Drawing.Point(397, 36);
             this.viewButton.Name = "viewButton";
-            this.viewButton.Size = new System.Drawing.Size(108, 23);
+            this.viewButton.Size = new System.Drawing.Size(76, 22);
             this.viewButton.TabIndex = 8;
             this.viewButton.Text = "Auto";
             this.viewButton.UseVisualStyleBackColor = true;
@@ -163,10 +189,10 @@
             // openTabButton
             // 
             this.openTabButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.openTabButton.AutoSize = true;
-            this.openTabButton.Location = new System.Drawing.Point(178, 4);
+            this.openTabButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.openTabButton.Location = new System.Drawing.Point(246, 12);
             this.openTabButton.Name = "openTabButton";
-            this.openTabButton.Size = new System.Drawing.Size(108, 23);
+            this.openTabButton.Size = new System.Drawing.Size(76, 22);
             this.openTabButton.TabIndex = 7;
             this.openTabButton.Text = "Open tab";
             this.openTabButton.UseVisualStyleBackColor = true;
@@ -175,9 +201,10 @@
             // panelButton
             // 
             this.panelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelButton.Location = new System.Drawing.Point(397, 4);
+            this.panelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.panelButton.Location = new System.Drawing.Point(397, 12);
             this.panelButton.Name = "panelButton";
-            this.panelButton.Size = new System.Drawing.Size(108, 23);
+            this.panelButton.Size = new System.Drawing.Size(76, 22);
             this.panelButton.TabIndex = 2;
             this.panelButton.Text = "Toggle Panel";
             this.panelButton.UseVisualStyleBackColor = true;
@@ -186,10 +213,10 @@
             // fontButton
             // 
             this.fontButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.fontButton.AutoSize = true;
-            this.fontButton.Location = new System.Drawing.Point(288, 4);
+            this.fontButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fontButton.Location = new System.Drawing.Point(321, 12);
             this.fontButton.Name = "fontButton";
-            this.fontButton.Size = new System.Drawing.Size(108, 23);
+            this.fontButton.Size = new System.Drawing.Size(75, 22);
             this.fontButton.TabIndex = 3;
             this.fontButton.Text = "Font";
             this.fontButton.UseVisualStyleBackColor = true;
@@ -271,8 +298,8 @@
             this.Text = "Tab Viewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.historySplitContainer.Panel1.ResumeLayout(false);
+            this.historySplitContainer.Panel1.PerformLayout();
             this.historySplitContainer.Panel2.ResumeLayout(false);
-            this.historySplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.historySplitContainer)).EndInit();
             this.historySplitContainer.ResumeLayout(false);
             this.tabSplitContainer.Panel1.ResumeLayout(false);
@@ -304,6 +331,8 @@
         private System.Windows.Forms.SplitContainer tabSplitContainer2;
         private System.Windows.Forms.RichTextBox tabTextBox2;
         private System.Windows.Forms.RichTextBox tabTextBox3;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button youtubeButton;
     }
 }
 
