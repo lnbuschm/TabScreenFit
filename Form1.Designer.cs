@@ -77,6 +77,7 @@
             // 
             // historySplitContainer.Panel1
             // 
+            this.historySplitContainer.Panel1.Controls.Add(this.youtubeButton);
             this.historySplitContainer.Panel1.Controls.Add(this.textBox1);
             this.historySplitContainer.Panel1.Controls.Add(this.removeButton);
             this.historySplitContainer.Panel1.Controls.Add(this.moveToTopButton);
@@ -84,7 +85,6 @@
             // 
             // historySplitContainer.Panel2
             // 
-            this.historySplitContainer.Panel2.Controls.Add(this.youtubeButton);
             this.historySplitContainer.Panel2.Controls.Add(this.fontSmallerButton);
             this.historySplitContainer.Panel2.Controls.Add(this.fontLargerButton);
             this.historySplitContainer.Panel2.Controls.Add(this.viewButton);
@@ -99,9 +99,10 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(13, 366);
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox1.Location = new System.Drawing.Point(7, 366);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(96, 20);
+            this.textBox1.Size = new System.Drawing.Size(85, 20);
             this.textBox1.TabIndex = 10;
             // 
             // removeButton
@@ -140,9 +141,9 @@
             // 
             // youtubeButton
             // 
-            this.youtubeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.youtubeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.youtubeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.youtubeButton.Location = new System.Drawing.Point(270, 35);
+            this.youtubeButton.Location = new System.Drawing.Point(98, 366);
             this.youtubeButton.Name = "youtubeButton";
             this.youtubeButton.Size = new System.Drawing.Size(59, 22);
             this.youtubeButton.TabIndex = 11;
@@ -154,8 +155,8 @@
             // 
             this.fontSmallerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.fontSmallerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.fontSmallerButton.Name = "fontSmallerButton";
             this.fontSmallerButton.Location = new System.Drawing.Point(368, 35);
+            this.fontSmallerButton.Name = "fontSmallerButton";
             this.fontSmallerButton.Size = new System.Drawing.Size(22, 22);
             this.fontSmallerButton.TabIndex = 11;
             this.fontSmallerButton.Text = "-";

@@ -82,5 +82,29 @@ namespace TabScreenFit.Properties {
                 this["WindowSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int TabSplitWidth1 {
+            get {
+                return ((int)(this["TabSplitWidth1"]));
+            }
+            set {
+                this["TabSplitWidth1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        public int TabSplitWidth2 {
+            get {
+                return ((int)(this["TabSplitWidth2"]));
+            }
+            set {
+                this["TabSplitWidth2"] = value;
+            }
+        }
     }
 }
