@@ -15,6 +15,7 @@ using System.Windows.Forms;
 
 namespace TabScreenFit
 {
+    
     //  fitting algorithm:
     //    find screensize, separate into 1/2
     //   - locate blocks on the screen that are available
@@ -74,6 +75,7 @@ namespace TabScreenFit
 
                     }
                 }
+                this.historyListBox.SelectedIndex = 0;
 
                 updateLeftPanel();
                 // select most recent tab to start
@@ -394,6 +396,7 @@ namespace TabScreenFit
                 string text = System.IO.File.ReadAllText(@processFileName, Encoding.Default);
                 setupVisibleTabPanels(text);
                 currentFilename = processFileName;
+                //MessageBox.Show("process filename: " + processFileName);
                 appendJson(@processFileName);
             }
             catch (Exception ex)
@@ -404,38 +407,47 @@ namespace TabScreenFit
         }
 
 
+        private void openTab(string openFilename)
+        {
+            bool duplicateFound = false;
+            // check if file already exists
+            foreach (HistoryEntry h in history)
+            {
+                if (h.fileName == openFilename)
+                {
+                    //    MessageBox.Show("Duplicate found");
+                    updateAccessedDateJson(Path.GetFileNameWithoutExtension(openFilename), DateTime.Now);
+                    duplicateFound = true;
+                    break;
+                }
+            }
+            //       foreach (ListBox.ObjectCollection item in historyListBox.Items) {
+            //           if (item.)
+            //       }
+            // if not , process file normally
+            if (!duplicateFound) processNewFile(openFilename);
+            else historyListBox.SelectedIndex = 0;
+        
+            updateLeftPanel();
+            currentViewSM();
+    }
+
         private void openTabButton_Click(object sender, EventArgs e)
         {
             // Show the Open File dialog. If the user chooses OK, load the 
             // tab that the user chose.
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                foreach (string openFilename in openFileDialog1.FileNames.Reverse()) { 
-                    bool duplicateFound = false;
-                    // check if file already exists
-                    foreach (HistoryEntry h in history)
-                    {
-                        if (h.fileName == openFilename)
-                        {
-                        //    MessageBox.Show("Duplicate found");
-                            updateAccessedDateJson(Path.GetFileNameWithoutExtension(openFilename), DateTime.Now);
-                            duplicateFound = true;
-                            break;
-                        }
-                    }
-             //       foreach (ListBox.ObjectCollection item in historyListBox.Items) {
-             //           if (item.)
-             //       }
-                    // if not , process file normally
-                    if (!duplicateFound) processNewFile(openFilename);
-                    else historyListBox.SelectedIndex = 0;
+                foreach (string openFilename in openFileDialog1.FileNames.Reverse()) {
+                    openTab(openFilename);
                 }
+                updateLeftPanel();
+
             }
             // write file info to json
 
             // TODO: update left panel
             // TODO:  modify accessed date to NOW
-            updateLeftPanel();
         }
 
         // Toggle panel on/off
@@ -585,8 +597,8 @@ namespace TabScreenFit
       //      }
             SendMessage(this.tabTextBox1.Handle, EM_GETRECT, IntPtr.Zero, ref tabTextBox1Rect);
             linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;
-      //      MessageBox.Show("lines per screen =" + linesPerScreen + ", textbox height=" + tabTextBox1.Height + ", caretposition=" + tabTextBox1.SelectionStart.ToString());
-
+            //      MessageBox.Show("lines per screen =" + linesPerScreen + ", textbox height=" + tabTextBox1.Height + ", caretposition=" + tabTextBox1.SelectionStart.ToString());
+            currentViewSM();
         }
 
         private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
@@ -626,7 +638,48 @@ namespace TabScreenFit
                     // TODO :: auto logic here .... for now pick 2 panels
                     // check number of lines in file
                     int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
-                    int linesInCurrentTab = tabTextBox1.Text.Split('\n').Length;
+                    string[] currentTab = tabTextBox1.Text.Split('\n');
+                    int linesInCurrentTab = currentTab.Length;
+
+                    using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+                    {
+                        SizeF lineWidth;
+                        IList<float> lineWidths = new List<float>();
+                  //      using (StringReader reader = new StringReader(tabTextBox1.Text))
+                        foreach (string line in currentTab)
+                        {
+                          //  string line;
+                         //   while ((line = reader.ReadLine()) != null)
+                         //   {
+                                lineWidth = g.MeasureString(line, new System.Drawing.Font(fontName,
+                                     fontSize, System.Drawing.FontStyle.Regular,
+                                     System.Drawing.GraphicsUnit.Point, ((byte)(0))));
+                                lineWidths.Add(lineWidth.Width);
+                        //    }
+                        }
+                        if (lineWidths.Count > 1)
+                        {
+                            // check median (widest or average??) line in tab
+                            float median = MedianCalc.Median(lineWidths);
+                       //     float max = 
+                            MessageBox.Show("line median: " + median +
+                                "\n tabTextBox1 width: " + tabTextBox1.Width +
+                                "\n lineWidths.Count: " + lineWidths.Count
+                                );
+                            if ((linesInCurrentTab > linesPerScreen)) 
+                            {
+                                // adjust slider position of 
+                                ShowTwoTabPanels();
+
+                                tabSplitContainer.SplitterDistance = Convert.ToInt16(median + 10);
+
+                            }
+
+                        }
+
+                    }
+
+
                     if (linesInCurrentTab < linesPerScreen)
                     {
                         ShowOneTabPanel();
@@ -915,6 +968,45 @@ namespace TabScreenFit
             // open youtube browser and search for tabname
             System.Diagnostics.Process.Start("https://www.youtube.com/results?search_query=" + searchquery);
 
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+        //    foreach (string file in files) {
+                foreach (string s in files)
+                {
+                    if (!(Path.GetExtension(s) == ".txt"))
+                    {
+                        MessageBox.Show("File is not a text file.");
+                    }
+                    else if (!File.Exists(s))
+                    {
+                        MessageBox.Show("File does not exist.");
+                    }
+                    else
+                    {
+                        this.historyListBox.SelectedIndex = 1;
+                    //   MessageBox.Show("Processing " + s);
+                    //    processNewFile(s);
+                    openTab(s);
+
+
+
+                }
+
+            }
+       //     this.historyListBox.SelectedIndex = 0;
+
+         //    updateLeftPanel();
+                // select most recent tab to start
+            //  if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+         ///   }
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
     }
 

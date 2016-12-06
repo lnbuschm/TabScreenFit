@@ -255,6 +255,7 @@
             // 
             // tabSplitContainer2
             // 
+            this.tabSplitContainer2.AllowDrop = true;
             this.tabSplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabSplitContainer2.Location = new System.Drawing.Point(0, 0);
             this.tabSplitContainer2.Name = "tabSplitContainer2";
@@ -290,6 +291,7 @@
             // 
             // Form1
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(790, 418);
@@ -298,6 +300,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Tab Viewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.historySplitContainer.Panel1.ResumeLayout(false);
             this.historySplitContainer.Panel1.PerformLayout();
             this.historySplitContainer.Panel2.ResumeLayout(false);
