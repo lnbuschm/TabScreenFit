@@ -111,18 +111,13 @@ namespace TabScreenFit
                 int HistoryPanelWidth = Properties.Settings.Default.HistoryPanelWidth;
          //       MessageBox.Show("panelwidth = " + HistoryPanelWidth);
                 this.historySplitContainer.SplitterDistance = HistoryPanelWidth;
-            
-                
+
+
             // load saved font and size
-       //     fontName = Properties.Settings.Default.Font.Name.ToString();
-       //     fontSize = Properties.Settings.Default.FontSize;
-       //     this.fontButton.Text = fontName;
-            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabTextBox2.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabTextBox3.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            //     fontName = Properties.Settings.Default.Font.Name.ToString();
+            //     fontSize = Properties.Settings.Default.FontSize;
+            //     this.fontButton.Text = fontName;
+            updateFontInTabbox();
 
             // read tab history panel from json
             readJson();
@@ -495,12 +490,7 @@ namespace TabScreenFit
                     fontName = "Courier New";
                     break;
             }
-            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabTextBox2.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabTextBox3.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            updateFontInTabbox();
             //     fontState++;
             //     if (fontState > 4) fontState = 1;
             fontButton.Text = fontName;
@@ -570,12 +560,7 @@ namespace TabScreenFit
                 string text = System.IO.File.ReadAllText(history.ElementAt(currentHistoryEntryIndex).fileName, Encoding.Default);
                 fontSize = history.ElementAt(currentHistoryEntryIndex).fontSize;
                 fontName = history.ElementAt(currentHistoryEntryIndex).fontName;
-                this.tabTextBox1.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                this.tabTextBox2.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                this.tabTextBox3.Font = new System.Drawing.Font(fontName,
-                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            updateFontInTabbox();
                 this.fontButton.Text = fontName;
 
                 setupVisibleTabPanels(text);
@@ -629,7 +614,7 @@ namespace TabScreenFit
             viewButton.Text = currentView;
             currentViewSM();
         }
-
+        
         private void currentViewSM()
         {
             switch (currentView)
@@ -641,38 +626,83 @@ namespace TabScreenFit
                     string[] currentTab = tabTextBox1.Text.Split('\n');
                     int linesInCurrentTab = currentTab.Length;
 
-                    using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+                    //   using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+                    using (Graphics gt1 = tabTextBox1.CreateGraphics())
                     {
                         SizeF lineWidth;
                         IList<float> lineWidths = new List<float>();
-                  //      using (StringReader reader = new StringReader(tabTextBox1.Text))
+                        IList<int> lineWidths2 = new List<int>();
+
+                        //      using (StringReader reader = new StringReader(tabTextBox1.Text))
                         foreach (string line in currentTab)
                         {
                           //  string line;
                          //   while ((line = reader.ReadLine()) != null)
                          //   {
-                                lineWidth = g.MeasureString(line, new System.Drawing.Font(fontName,
+                                lineWidth = gt1.MeasureString(line.Trim(), new System.Drawing.Font(fontName,
                                      fontSize, System.Drawing.FontStyle.Regular,
                                      System.Drawing.GraphicsUnit.Point, ((byte)(0))));
-                                lineWidths.Add(lineWidth.Width);
-                        //    }
+                        //    MessageBox.Show(lineWidth.Width.ToString());
+                            if (lineWidth.Width > 10)   lineWidths.Add(lineWidth.Width);
+                            int lineWidth2 = TextRenderer.MeasureText(line, tabTextBox1.Font).Width;
+                            if (lineWidth2 > 10) lineWidths2.Add(lineWidth2);
+
+                            //    }
                         }
+                        float screenWidth = gt1.VisibleClipBounds.Width;
+                        
+
                         if (lineWidths.Count > 1)
                         {
+                            string printString = "lineWidths list \n------------\n";
+                            foreach (object o in lineWidths)
+                            {
+                                // Add the fields you want to show here
+                                printString +=  o.ToString() + "    |    ";
+                            }
+                       //     MessageBox.Show(printString);
+
                             // check median (widest or average??) line in tab
                             float median = MedianCalc.Median(lineWidths);
-                       //     float max = 
-                            MessageBox.Show("line median: " + median +
-                                "\n tabTextBox1 width: " + tabTextBox1.Width +
-                                "\n lineWidths.Count: " + lineWidths.Count
-                                );
+                            float upperquartile = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count*3/4);
+                            float max = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1);
+                            double stdDev = MedianCalc.StandardDeviation(lineWidths);
+                            double average = lineWidths.Average();
+
+
+                            float median2 = MedianCalc.Median(lineWidths2);
+                            float upperquartile2 = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count * 3 / 4);
+                            float max2 = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 1);
+                        //    double stdDev2 = MedianCalc.StandardDeviation(lineWidths2);
+                            double average2 = lineWidths2.Average();
+                            // let's find a std deviation , check for upper outlier and ignore
+
+
+                            //     float max = 
+                            //       MessageBox.Show("line median: " + median +
+                            //           "\n tabTextBox1 width: " + tabTextBox1.Width +
+                            //           "\n lineWidths.Count: " + lineWidths.Count
+                            //           );
                             if ((linesInCurrentTab > linesPerScreen)) 
                             {
                                 // adjust slider position of 
                                 ShowTwoTabPanels();
 
-                                tabSplitContainer.SplitterDistance = Convert.ToInt16(median + 10);
+                                tabSplitContainer.SplitterDistance = Convert.ToInt16(max2);// 600; // Convert.ToInt16(median);
+                                       MessageBox.Show("MedianCalc.Median(lineWidths): " + MedianCalc.Median(lineWidths) + "   2) " + median2 +
+                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) min: " + MedianCalc.NthOrderStatistic(lineWidths,0) +// "   2) " + min2 +
+                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max: " + MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1) + "   2) " + max2 +
+                                          "\n  stdDev: 1) " + stdDev + "   2) " +  //stdDev2 +
+                                          "\n  average: 1) " + average + "   2) " + average2 +
+                                           "\n tabTextBox1 width: " + tabTextBox1.Width +
+                                           "\n screenWidth: " + screenWidth +
+                                           "\n tabSplitContainer.SplitterDistance: " + tabSplitContainer.SplitterDistance +
+                                           "\n tabSplitContainer.Width width: " + tabSplitContainer.Width +
+                                           "\n tabSplitContainer2.Width width: " + tabSplitContainer2.Width +
 
+                                           "\n lineWidths.Count: " + lineWidths.Count
+                                           );
+                                return;
                             }
 
                         }
@@ -708,11 +738,20 @@ namespace TabScreenFit
             }
         }
 
+        private void updateFontInTabbox()
+        {
+            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
+                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabTextBox2.Font = new System.Drawing.Font(fontName,
+                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabTextBox3.Font = new System.Drawing.Font(fontName,
+                        fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        }
+
         private void fontLargerButton_Click(object sender, EventArgs e)
         {
             fontSize += 0.75F;
-            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
-                       fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            updateFontInTabbox();
             if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
        //     Properties.Settings.Default["FontSize"] = fontSize;
        //     Properties.Settings.Default.Save();
@@ -721,8 +760,7 @@ namespace TabScreenFit
         private void fontSmallerButton_Click(object sender, EventArgs e)
         {
             fontSize -= 0.75F;
-            this.tabTextBox1.Font = new System.Drawing.Font(fontName,
-                       fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            updateFontInTabbox();
             if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
       //      Properties.Settings.Default["FontSize"] = fontSize;
       //      Properties.Settings.Default.Save();

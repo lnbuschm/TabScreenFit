@@ -78,5 +78,10 @@ namespace TabScreenFit
             var mid = (list.Count - 1) / 2;
             return list.NthOrderStatistic(mid);
         }
+        public static double StandardDeviation(this IEnumerable<float> values)
+        {
+            float avg = values.Average();
+            return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
+        }
     }
 }
