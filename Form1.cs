@@ -44,6 +44,8 @@ namespace TabScreenFit
         double linesPerScreen;
         RECT tabTextBox1Rect;
         int VISIBLE_TAB_PANELS;
+        bool searchInProgress = false;
+        bool historyListBoxClicked = false;
 
 
         public Form1(string[] args)
@@ -535,51 +537,120 @@ namespace TabScreenFit
                 this.tabTextBox2.Text = text;
                 this.tabTextBox3.Text = text;
             }
-               int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(historyListBox.SelectedItem.ToString(), StringComparison.Ordinal));
+               int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(Path.GetFileNameWithoutExtension(currentFilename), StringComparison.Ordinal));
                scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
         }
 
+        List<string> searchHistoryItems = new List<string>();
+        private void historyListBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            updateYscrollInJson();
+      //      MessageBox.Show("Selected index: " + historyListBox.SelectedIndex +
+      //                       "\n text: " + historyListBox.SelectedItem.ToString());
+            if (searchInProgress)
+            {
+                historyListBoxClicked = true;
+                for (int i = 0; i < historyListBox.Items.Count; i++)
+                {
+                    if (historyListBox.GetSelected(i))
+                    {
+                        searchHistoryItems.Remove(historyListBox.Items[i].ToString());
+                    }
+                    historyListBox.SetSelected(i, false);
+                }
+             //   MessageBox.Show("search history size: " + searchHistoryItems.Count);
+                historyListBox.SelectionMode = SelectionMode.One;
+                displayItem(searchHistoryItems.ElementAt(0));
+            }
+            else
+            {
+                historyListBoxClicked = false;
+            }
+            searchInProgress = false;
+            
+
+        }
+        // update y scroll in json before changing selection
+        private void updateYscrollInJson()
+        {
+            if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
+            double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
+            //    int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
+            // works ?        int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
+            int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
+
+            // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
+
+            //     int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
+            //    int lineToScroll = Convert.ToInt32(((double) -tabTextBox1.GetPositionFromCharIndex(0).Y / tabTextBox1.Font.Height) * linesPerScreen);// / tabTextBox1.Height;
+            //  int scroll1 = tabTextBox1.GetCharFromPosition(lineToScroll);
+            int scroll1 = tabTextBox1.GetFirstCharIndexFromLine(linesToScroll);
+            if (currentFilename != "") updateYscrollJson(currentFilename, linesToScroll);
+            //           MessageBox.Show("Y scroll: " + lineToScroll.ToString()
+            //           + "\n -tabTextBox1.GetPositionFromCharIndex(0).Y=" + tabTextBox1.GetPositionFromCharIndex(0).Y
+            //           + "\n  this.tabTextBox1.Font.Height="+ this.tabTextBox1.Font.Height);
+            //       MessageBox.Show("wrote to json: y scroll, index 0: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString());
+            //     MessageBox.Show("Y scroll, selectionstart: " + tabTextBox1.GetPositionFromCharIndex(tabTextBox1.SelectionStart).Y.ToString());
+
+            //      tabTextBox1.SelectionStart = newYscroll
+        }
         private void historyListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (historyListBox.SelectedItem == null) return;
-       //     updateLeftPanel(historyListBox.SelectedItem.ToString());
-            // find selection in history List
-       //     try
-        //    {
-                int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(historyListBox.SelectedItem.ToString(), StringComparison.Ordinal));
 
-                //     MessageBox.Show("currentHistoryEntryIndex: " + currentHistoryEntryIndex);
-                if (currentFilename.Contains(historyListBox.SelectedItem.ToString())) return;
-         //       else currentHistoryEntryIndex = newHistoryEntryIndex;
-      //          currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(historyListBox.SelectedItem.ToString(), StringComparison.Ordinal));
+            if (searchInProgress) return;
+            if (historyListBoxClicked)
+            {
+                historyListBox.SelectionMode = SelectionMode.One;
+                historyListBoxClicked = false;
+           //     MessageBox.Show("clicked item: " + historyListBox.SelectedValue);
+              //  return;
+            }
+            //     updateLeftPanel(historyListBox.SelectedItem.ToString());
+            // find selection in history List
+            //     try
+            //    {
+            displayItem(historyListBox.SelectedItem.ToString());
+
+        }
+
+        private void displayItem(string itemName)
+        {
+            int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(itemName, StringComparison.Ordinal));
+
+            //     MessageBox.Show("currentHistoryEntryIndex: " + currentHistoryEntryIndex);
+            if (currentFilename.Contains(itemName)) return;
+            currentFilename = history.ElementAt(currentHistoryEntryIndex).fileName;
+
+            //       else currentHistoryEntryIndex = newHistoryEntryIndex;
+            //          currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(historyListBox.SelectedItem.ToString(), StringComparison.Ordinal));
             //    tabTextBox1.SelectionStart = newYscroll
 
-                //     var h = history.Find(file => Path.GetFileNameWithoutExtension(file.fileName) == historyListBox.SelectedItem.ToString());
-                //     string text = System.IO.File.ReadAllText(h.fileName, Encoding.Default);
-                //     currentFilename = h.fileName;
-                string text = System.IO.File.ReadAllText(history.ElementAt(currentHistoryEntryIndex).fileName, Encoding.Default);
-                fontSize = history.ElementAt(currentHistoryEntryIndex).fontSize;
-                fontName = history.ElementAt(currentHistoryEntryIndex).fontName;
+            //     var h = history.Find(file => Path.GetFileNameWithoutExtension(file.fileName) == historyListBox.SelectedItem.ToString());
+            //     string text = System.IO.File.ReadAllText(h.fileName, Encoding.Default);
+            //     currentFilename = h.fileName;
+            string text = System.IO.File.ReadAllText(history.ElementAt(currentHistoryEntryIndex).fileName, Encoding.Default);
+            fontSize = history.ElementAt(currentHistoryEntryIndex).fontSize;
+            fontName = history.ElementAt(currentHistoryEntryIndex).fontName;
             updateFontInTabbox();
-                this.fontButton.Text = fontName;
+            this.fontButton.Text = fontName;
 
-                setupVisibleTabPanels(text);
-                ///// TODO :: Fix this ..  doesn't scroll correctly
-                //      tabTextBox1.SelectionStart = history.ElementAt(currentHistoryEntryIndex).yScroll;
-                //      tabTextBox1.ScrollToCaret();
-                //     scrollToCharIndex(history.ElementAt(currentHistoryEntryIndex).yScroll);
-                scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
+            setupVisibleTabPanels(text);
+            ///// TODO :: Fix this ..  doesn't scroll correctly
+            //      tabTextBox1.SelectionStart = history.ElementAt(currentHistoryEntryIndex).yScroll;
+            //      tabTextBox1.ScrollToCaret();
+            //     scrollToCharIndex(history.ElementAt(currentHistoryEntryIndex).yScroll);
+            scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
 
-                //            MessageBox.Show("scroll to selectionstart: " + history.ElementAt(currentHistoryEntryIndex).yScroll.ToString());
-                //      tabTextBox1. tabTextBox1.GetPositionFromCharIndex(0).Y
-                currentFilename = history.ElementAt(currentHistoryEntryIndex).fileName;
+            //            MessageBox.Show("scroll to selectionstart: " + history.ElementAt(currentHistoryEntryIndex).yScroll.ToString());
+            //      tabTextBox1. tabTextBox1.GetPositionFromCharIndex(0).Y
 
-                //   MessageBox.Show(history.ElementAt(historyListBox.SelectedIndex).tabName);
-      //      }
-      //      catch (Exception ex)
-      //      {
-     //           tabTextBox1.Text = "\n\n\n\nhistoryListBox_SelectedIndexChanged() Could not load File: " + openFileDialog1.FileName + " \n " + ex.ToString();
-      //      }
+            //   MessageBox.Show(history.ElementAt(historyListBox.SelectedIndex).tabName);
+            //      }
+            //      catch (Exception ex)
+            //      {
+            //           tabTextBox1.Text = "\n\n\n\nhistoryListBox_SelectedIndexChanged() Could not load File: " + openFileDialog1.FileName + " \n " + ex.ToString();
+            //      }
             SendMessage(this.tabTextBox1.Handle, EM_GETRECT, IntPtr.Zero, ref tabTextBox1Rect);
             linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;
             //      MessageBox.Show("lines per screen =" + linesPerScreen + ", textbox height=" + tabTextBox1.Height + ", caretposition=" + tabTextBox1.SelectionStart.ToString());
@@ -666,6 +737,8 @@ namespace TabScreenFit
                             float median = MedianCalc.Median(lineWidths);
                             float upperquartile = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count*3/4);
                             float max = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1);
+                            float maxminus1 = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count - 2);
+
                             double stdDev = MedianCalc.StandardDeviation(lineWidths);
                             double average = lineWidths.Average();
 
@@ -673,7 +746,9 @@ namespace TabScreenFit
                             float median2 = MedianCalc.Median(lineWidths2);
                             float upperquartile2 = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count * 3 / 4);
                             float max2 = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 1);
-                        //    double stdDev2 = MedianCalc.StandardDeviation(lineWidths2);
+                            float max2minus1 = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2);
+
+                            double stdDev2 = MedianCalc.StandardDeviation(lineWidths2);
                             double average2 = lineWidths2.Average();
                             // let's find a std deviation , check for upper outlier and ignore
 
@@ -688,11 +763,26 @@ namespace TabScreenFit
                                 // adjust slider position of 
                                 ShowTwoTabPanels();
 
-                                tabSplitContainer.SplitterDistance = Convert.ToInt16(max2);// 600; // Convert.ToInt16(median);
+                                // choose width of tabtextbox1 .. don't use max but instead look for some value within stddev from max
+                                float newTabTabTextBoxWidth = max2; // Convert.ToInt16(max2);
+                                int count = 0;
+                                int compare = Convert.ToInt32(stdDev2) + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2);
+                              //  while (newTabTabTextBoxWidth <= (stdDev2 + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count)))
+                                 while (newTabTabTextBoxWidth > (compare))
+                                {
+
+                                    newTabTabTextBoxWidth = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count); // max minus 1
+                                    count++;
+                                    compare = Convert.ToInt32(stdDev2/10) + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count);
+                                }
+
+                                tabSplitContainer.SplitterDistance = Convert.ToInt32(newTabTabTextBoxWidth);// 600; // Convert.ToInt16(median);
+
                                        MessageBox.Show("MedianCalc.Median(lineWidths): " + MedianCalc.Median(lineWidths) + "   2) " + median2 +
+                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max-1: " + maxminus1 + "   2) " + max2minus1 +
                                            "\n  MedianCalc.NthOrderStatistic(lineWidths,0) min: " + MedianCalc.NthOrderStatistic(lineWidths,0) +// "   2) " + min2 +
                                            "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max: " + MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1) + "   2) " + max2 +
-                                          "\n  stdDev: 1) " + stdDev + "   2) " +  //stdDev2 +
+                                          "\n  stdDev: 1) " + stdDev + "   2) " +  stdDev2 +
                                           "\n  average: 1) " + average + "   2) " + average2 +
                                            "\n tabTextBox1 width: " + tabTextBox1.Width +
                                            "\n screenWidth: " + screenWidth +
@@ -796,30 +886,7 @@ namespace TabScreenFit
             Properties.Settings.Default.Save();
         }
 
-        // update y scroll in json before changing selection
-        private void historyListBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
-            double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
-            //    int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
-            // works ?        int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
-            int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
 
-            // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
-
-            //     int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
-            //    int lineToScroll = Convert.ToInt32(((double) -tabTextBox1.GetPositionFromCharIndex(0).Y / tabTextBox1.Font.Height) * linesPerScreen);// / tabTextBox1.Height;
-            //  int scroll1 = tabTextBox1.GetCharFromPosition(lineToScroll);
-            int scroll1 = tabTextBox1.GetFirstCharIndexFromLine(linesToScroll);
-            if (currentFilename != "" ) updateYscrollJson(currentFilename, linesToScroll);
-            //           MessageBox.Show("Y scroll: " + lineToScroll.ToString()
-            //           + "\n -tabTextBox1.GetPositionFromCharIndex(0).Y=" + tabTextBox1.GetPositionFromCharIndex(0).Y
-            //           + "\n  this.tabTextBox1.Font.Height="+ this.tabTextBox1.Font.Height);
-            //       MessageBox.Show("wrote to json: y scroll, index 0: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString());
-            //     MessageBox.Show("Y scroll, selectionstart: " + tabTextBox1.GetPositionFromCharIndex(tabTextBox1.SelectionStart).Y.ToString());
-
-            //      tabTextBox1.SelectionStart = newYscroll
-        }
 
         private void tabTextBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -1045,6 +1112,40 @@ namespace TabScreenFit
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+        }
+
+        private void searchBox_TextChanged(object sender, EventArgs e)
+        {
+            searchBoxAction();
+
+
+        }
+
+        private void searchBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            searchBoxAction();
+        }
+
+        private void searchBoxAction()
+        {
+            if (searchBox.Text.Length < 3) return;
+            historyListBox.SelectionMode = SelectionMode.MultiSimple;
+            searchHistoryItems.Clear();
+
+            searchInProgress = true;
+            for (int i = 0; i < historyListBox.Items.Count; i++)
+            {
+                if (historyListBox.Items[i].ToString().Contains(searchBox.Text))
+                {
+                    historyListBox.SetSelected(i, true);
+                    searchHistoryItems.Add(historyListBox.Items[i].ToString());
+                }
+                else
+                {
+                    historyListBox.SetSelected(i, false);
+                }
+            }
+
         }
     }
 

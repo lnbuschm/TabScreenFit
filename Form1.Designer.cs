@@ -30,11 +30,11 @@
         {
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.historySplitContainer = new System.Windows.Forms.SplitContainer();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.youtubeButton = new System.Windows.Forms.Button();
+            this.searchBox = new System.Windows.Forms.TextBox();
             this.removeButton = new System.Windows.Forms.Button();
             this.moveToTopButton = new System.Windows.Forms.Button();
             this.historyListBox = new System.Windows.Forms.ListBox();
-            this.youtubeButton = new System.Windows.Forms.Button();
             this.fontSmallerButton = new System.Windows.Forms.Button();
             this.fontLargerButton = new System.Windows.Forms.Button();
             this.viewButton = new System.Windows.Forms.Button();
@@ -78,7 +78,7 @@
             // historySplitContainer.Panel1
             // 
             this.historySplitContainer.Panel1.Controls.Add(this.youtubeButton);
-            this.historySplitContainer.Panel1.Controls.Add(this.textBox1);
+            this.historySplitContainer.Panel1.Controls.Add(this.searchBox);
             this.historySplitContainer.Panel1.Controls.Add(this.removeButton);
             this.historySplitContainer.Panel1.Controls.Add(this.moveToTopButton);
             this.historySplitContainer.Panel1.Controls.Add(this.historyListBox);
@@ -97,13 +97,27 @@
             this.historySplitContainer.TabIndex = 0;
             this.historySplitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
-            // textBox1
+            // youtubeButton
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox1.Location = new System.Drawing.Point(7, 366);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(85, 20);
-            this.textBox1.TabIndex = 10;
+            this.youtubeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.youtubeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.youtubeButton.Location = new System.Drawing.Point(98, 366);
+            this.youtubeButton.Name = "youtubeButton";
+            this.youtubeButton.Size = new System.Drawing.Size(59, 22);
+            this.youtubeButton.TabIndex = 11;
+            this.youtubeButton.Text = "YouTube!";
+            this.youtubeButton.UseVisualStyleBackColor = true;
+            this.youtubeButton.Click += new System.EventHandler(this.youtubeButton_Click);
+            // 
+            // searchBox
+            // 
+            this.searchBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.searchBox.Location = new System.Drawing.Point(7, 366);
+            this.searchBox.Name = "searchBox";
+            this.searchBox.Size = new System.Drawing.Size(85, 20);
+            this.searchBox.TabIndex = 10;
+            this.searchBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.searchBox_MouseClick);
+            this.searchBox.TextChanged += new System.EventHandler(this.searchBox_TextChanged);
             // 
             // removeButton
             // 
@@ -138,18 +152,6 @@
             this.historyListBox.TabIndex = 7;
             this.historyListBox.SelectedIndexChanged += new System.EventHandler(this.historyListBox_SelectedIndexChanged);
             this.historyListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.historyListBox_MouseDown);
-            // 
-            // youtubeButton
-            // 
-            this.youtubeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.youtubeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.youtubeButton.Location = new System.Drawing.Point(98, 366);
-            this.youtubeButton.Name = "youtubeButton";
-            this.youtubeButton.Size = new System.Drawing.Size(59, 22);
-            this.youtubeButton.TabIndex = 11;
-            this.youtubeButton.Text = "YouTube!";
-            this.youtubeButton.UseVisualStyleBackColor = true;
-            this.youtubeButton.Click += new System.EventHandler(this.youtubeButton_Click);
             // 
             // fontSmallerButton
             // 
@@ -250,6 +252,7 @@
             this.tabTextBox1.Size = new System.Drawing.Size(275, 418);
             this.tabTextBox1.TabIndex = 6;
             this.tabTextBox1.Text = "";
+            this.tabTextBox1.WordWrap = false;
             this.tabTextBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tabTextBox1_MouseDown);
             this.tabTextBox1.DoubleClick += new System.EventHandler(this.tabTextBox1_DoubleClick);
             // 
@@ -279,6 +282,7 @@
             this.tabTextBox2.Size = new System.Drawing.Size(127, 418);
             this.tabTextBox2.TabIndex = 0;
             this.tabTextBox2.Text = "";
+            this.tabTextBox2.WordWrap = false;
             // 
             // tabTextBox3
             // 
@@ -288,6 +292,7 @@
             this.tabTextBox3.Size = new System.Drawing.Size(113, 418);
             this.tabTextBox3.TabIndex = 0;
             this.tabTextBox3.Text = "";
+            this.tabTextBox3.WordWrap = false;
             // 
             // Form1
             // 
@@ -336,7 +341,7 @@
         private System.Windows.Forms.SplitContainer tabSplitContainer2;
         private System.Windows.Forms.RichTextBox tabTextBox2;
         private System.Windows.Forms.RichTextBox tabTextBox3;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox searchBox;
         private System.Windows.Forms.Button youtubeButton;
     }
 }
