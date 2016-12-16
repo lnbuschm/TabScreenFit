@@ -10,6 +10,7 @@ using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -327,7 +328,7 @@ namespace TabScreenFit
                     {
                         var itemToRemove = history.Single(h => h.fileName == history1.fileName);
                         history.Remove(itemToRemove);
-
+                  //      MessageBox.Show("Updated Y scroll to: " + newYscroll);
                         history1.yScroll = newYscroll;
                   //      tabTextBox1.SelectionStart = newYscroll
 
@@ -391,7 +392,7 @@ namespace TabScreenFit
             try
             {
                 string text = System.IO.File.ReadAllText(@processFileName, Encoding.Default);
-                setupVisibleTabPanels(text);
+                setupVisibleTabPanels(text, 0);
                 currentFilename = processFileName;
                 //MessageBox.Show("process filename: " + processFileName);
                 appendJson(@processFileName);
@@ -516,20 +517,25 @@ namespace TabScreenFit
             // fill panel
         }
 
-        private void setupVisibleTabPanels(string text)
+        private void setupVisibleTabPanels(string text, int yScroll)
         {
+          //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+
+         //   string[] textHighlighted = Regex.Split(text, "\r\n|\r|\n");
+
+
 
             if (VISIBLE_TAB_PANELS == 1)
             {
                 this.tabTextBox1.Text = text;
-                this.tabTextBox2.Text = "";
-                this.tabTextBox3.Text = "";
+                this.tabTextBox2.Text = text;
+                this.tabTextBox3.Text = text;
             }
             else if (VISIBLE_TAB_PANELS == 2)
             {
                 this.tabTextBox1.Text = text;
                 this.tabTextBox2.Text = text;
-                this.tabTextBox3.Text = "";
+                this.tabTextBox3.Text = text;
             }
             else if (VISIBLE_TAB_PANELS == 3)
             {
@@ -537,7 +543,51 @@ namespace TabScreenFit
                 this.tabTextBox2.Text = text;
                 this.tabTextBox3.Text = text;
             }
-               int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(Path.GetFileNameWithoutExtension(currentFilename), StringComparison.Ordinal));
+            int lineToScrollTo = yScroll + Convert.ToInt16(linesPerScreen) - 3; // - 3;  // -3 works
+            int firstCharOfLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo);
+
+            if (firstCharOfLineIndex > 0)
+            {
+                int currentLine = tabTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
+                int firstCharOfNextLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo + 1);
+                // if line is blank, choose a  line that has some text
+                while (firstCharOfNextLineIndex == -1)
+                {
+                    MessageBox.Show("Highlighted line: " + linesPerScreen +
+" \n firstCharOfLineIndex: " + firstCharOfLineIndex + " \n firstCharOfNextLineIndex: " + firstCharOfNextLineIndex + "\n currentLine " + currentLine);
+
+                    lineToScrollTo--;
+                    firstCharOfLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo);
+                    currentLine = tabTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
+                    firstCharOfNextLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo + 1);
+             //       firstCharOfNextLineIndex = firstCharOfLineIndex;
+                }
+
+                this.tabTextBox1.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
+                this.tabTextBox1.SelectionBackColor = Color.Yellow;
+                this.tabTextBox1.Select(0, 0);
+                if (VISIBLE_TAB_PANELS == 2)
+                {
+       //             MessageBox.Show("Highlighted line: " + linesPerScreen +
+       //           " \n firstCharOfLineIndex: " + firstCharOfLineIndex + "\n currentLine " + currentLine);
+                    this.tabTextBox2.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
+                    this.tabTextBox2.SelectionBackColor = Color.Yellow;
+                    this.tabTextBox2.Select(0, 0);
+              //      tabTextBox2.AppendText("");
+                }
+                else if (VISIBLE_TAB_PANELS == 3)
+                {
+                    this.tabTextBox2.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
+                    this.tabTextBox2.SelectionBackColor = Color.Yellow;
+                    this.tabTextBox2.Select(0, 0);
+                    this.tabTextBox3.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
+                    this.tabTextBox3.SelectionBackColor = Color.Yellow;
+                    this.tabTextBox3.Select(0, 0);
+                }
+            }
+
+
+            int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(Path.GetFileNameWithoutExtension(currentFilename), StringComparison.Ordinal));
                scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
         }
 
@@ -573,11 +623,12 @@ namespace TabScreenFit
         // update y scroll in json before changing selection
         private void updateYscrollInJson()
         {
-            if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
+  //          if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
             double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
             //    int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
             // works ?        int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
             int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
+        //    MessageBox.Show("updating yscrol");
 
             // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
 
@@ -635,7 +686,11 @@ namespace TabScreenFit
             updateFontInTabbox();
             this.fontButton.Text = fontName;
 
-            setupVisibleTabPanels(text);
+            SendMessage(this.tabTextBox1.Handle, EM_GETRECT, IntPtr.Zero, ref tabTextBox1Rect);
+            //        linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;// works?
+            linesPerScreen = ((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1));
+
+            setupVisibleTabPanels(text, history.ElementAt(currentHistoryEntryIndex).yScroll);
             ///// TODO :: Fix this ..  doesn't scroll correctly
             //      tabTextBox1.SelectionStart = history.ElementAt(currentHistoryEntryIndex).yScroll;
             //      tabTextBox1.ScrollToCaret();
@@ -651,10 +706,9 @@ namespace TabScreenFit
             //      {
             //           tabTextBox1.Text = "\n\n\n\nhistoryListBox_SelectedIndexChanged() Could not load File: " + openFileDialog1.FileName + " \n " + ex.ToString();
             //      }
-            SendMessage(this.tabTextBox1.Handle, EM_GETRECT, IntPtr.Zero, ref tabTextBox1Rect);
-            linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;
-            //      MessageBox.Show("lines per screen =" + linesPerScreen + ", textbox height=" + tabTextBox1.Height + ", caretposition=" + tabTextBox1.SelectionStart.ToString());
             currentViewSM();
+
+            //      MessageBox.Show("lines per screen =" + linesPerScreen + ", textbox height=" + tabTextBox1.Height + ", caretposition=" + tabTextBox1.SelectionStart.ToString());
         }
 
         private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
@@ -667,6 +721,7 @@ namespace TabScreenFit
 
         private void viewButton_Click(object sender, EventArgs e)
         {
+
             switch (currentView)
             {
                 case "Auto":
@@ -683,6 +738,10 @@ namespace TabScreenFit
                     break;
             }
             viewButton.Text = currentView;
+            int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
+
+            setupVisibleTabPanels(tabTextBox1.Text, linesToScroll);
+
             currentViewSM();
         }
         
@@ -693,7 +752,9 @@ namespace TabScreenFit
                 case "Auto":
                     // TODO :: auto logic here .... for now pick 2 panels
                     // check number of lines in file
-                    int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+                    //int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+                    //linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;
+
                     string[] currentTab = tabTextBox1.Text.Split('\n');
                     int linesInCurrentTab = currentTab.Length;
 
@@ -934,10 +995,11 @@ namespace TabScreenFit
 
         private void scrollToLine(int lineNum)
         {
-      //      MessageBox.Show("lineNum=" + lineNum);
-            int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+            //      MessageBox.Show("lineNum=" + lineNum);
+          //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+           
             int cix = tabTextBox1.GetFirstCharIndexFromLine(lineNum);
-            int cix2 = tabTextBox1.GetFirstCharIndexFromLine(lineNum + linesPerScreen);
+            int cix2 = tabTextBox1.GetFirstCharIndexFromLine(lineNum - 3 + Convert.ToInt16(linesPerScreen));
             if (cix2 == -1)
             {
                 cix2 = 0;
@@ -945,7 +1007,7 @@ namespace TabScreenFit
                 ShowOneTabPanel();
          //       MessageBox.Show("ok");
             }
-            int cix3 = tabTextBox1.GetFirstCharIndexFromLine(lineNum + linesPerScreen*2);
+            int cix3 = tabTextBox1.GetFirstCharIndexFromLine((lineNum-3 + Convert.ToInt16(linesPerScreen)) *2);
             if (cix3 == -1)
             {
                 cix3 = 0;
@@ -1040,7 +1102,7 @@ namespace TabScreenFit
             this.tabSplitContainer2.Panel2.Hide();
             VISIBLE_TAB_PANELS = 2;
           //  this.tabSplitContainer.SplitterDistance = 550;
-            this.tabTextBox2.Text = tabTextBox1.Text;
+         //   this.tabTextBox2.Text = tabTextBox1.Text;
 
         }
 
@@ -1051,7 +1113,7 @@ namespace TabScreenFit
             this.tabSplitContainer.Panel2.Show();
             this.tabSplitContainer2.Panel2Collapsed = false;
             this.tabSplitContainer2.Panel2.Show();
-            this.tabTextBox3.Text = tabTextBox1.Text;
+     //       this.tabTextBox3.Text = tabTextBox1.Text;
             VISIBLE_TAB_PANELS = 3;
         }
 
