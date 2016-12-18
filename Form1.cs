@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -16,7 +17,7 @@ using System.Windows.Forms;
 
 namespace TabScreenFit
 {
-    
+
     //  fitting algorithm:
     //    find screensize, separate into 1/2
     //   - locate blocks on the screen that are available
@@ -41,7 +42,7 @@ namespace TabScreenFit
         string fontName = "";
         string currentView = "Auto"; // default currentview set in currentViewSM()
         string currentFilename = "";
-      //  int currentHistoryEntryIndex;
+        //  int currentHistoryEntryIndex;
         double linesPerScreen;
         RECT tabTextBox1Rect;
         int VISIBLE_TAB_PANELS;
@@ -58,7 +59,7 @@ namespace TabScreenFit
             // check if program is opened using "open with.." on a txt file
             if (!(args == null || args.Length == 0))
             {
-              //  MessageBox.Show(args[0]);
+                //  MessageBox.Show(args[0]);
                 foreach (string s in args)
                 {
                     if (!(Path.GetExtension(s) == ".txt"))
@@ -72,7 +73,7 @@ namespace TabScreenFit
                     else
                     {
                         this.historyListBox.SelectedIndex = 1;
-                     //   MessageBox.Show("Processing " + s);
+                        //   MessageBox.Show("Processing " + s);
                         processNewFile(s);
 
 
@@ -86,16 +87,23 @@ namespace TabScreenFit
             }
 
         }
-
+        Control[] syncedCtrls;
         private void MyInitializer()
         {
             tabTextBox1Rect = new RECT();
+
+            // add the required controls into scroll sync
+            syncedCtrls = new Control[] { tabTextBox1, tabTextBox2, tabTextBox3 };
+            foreach (SyncTextBox ctr in syncedCtrls)
+            {
+                ctr.Buddies = syncedCtrls;
+            }
 
             // Set window location
             if (Properties.Settings.Default.WindowLocation != null)
             {
                 this.Location = Properties.Settings.Default.WindowLocation;
-               // MessageBox.Show("WindowLocation = " + Location);
+                // MessageBox.Show("WindowLocation = " + Location);
             }
 
             // Set window size
@@ -110,10 +118,10 @@ namespace TabScreenFit
             this.historySplitContainer.Panel1Collapsed = false;
             this.historySplitContainer.Panel1.Show();
             this.historyListBox.Visible = true;
-            
-                int HistoryPanelWidth = Properties.Settings.Default.HistoryPanelWidth;
-         //       MessageBox.Show("panelwidth = " + HistoryPanelWidth);
-                this.historySplitContainer.SplitterDistance = HistoryPanelWidth;
+
+            int HistoryPanelWidth = Properties.Settings.Default.HistoryPanelWidth;
+            //       MessageBox.Show("panelwidth = " + HistoryPanelWidth);
+            this.historySplitContainer.SplitterDistance = HistoryPanelWidth;
 
 
             // load saved font and size
@@ -125,10 +133,10 @@ namespace TabScreenFit
             // read tab history panel from json
             readJson();
 
-       //     MessageBox.Show("myInitializer()");
-    }
+            //     MessageBox.Show("myInitializer()");
+        }
 
-    private void readJson()
+        private void readJson()
         {
             jsonFile = Path.Combine(Environment.GetFolderPath(
                             Environment.SpecialFolder.ApplicationData), "tabscreenfit.json");
@@ -139,7 +147,7 @@ namespace TabScreenFit
                 jsonReader = new JsonTextReader(new StringReader(jsonText));
                 jsonReader.SupportMultipleContent = true;
                 // clear previous list, re-read entries ?????????????????? TODO  should we check if they exist?
-              //  history = new List<HistoryEntry>();
+                //  history = new List<HistoryEntry>();
 
                 while (true)
                 {
@@ -150,10 +158,11 @@ namespace TabScreenFit
                     HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
 
                     // add to list if it doesnt already exist in list
-                    if (!history.Any(item => item.fileName == history1.fileName)) {
+                    if (!history.Any(item => item.fileName == history1.fileName))
+                    {
                         history.Add(history1);
                     }
-                    
+
                 }
                 // sort by descending accessed date
                 history.Sort((y, x) => DateTime.Compare(x.AccessedDate, y.AccessedDate));
@@ -227,13 +236,13 @@ namespace TabScreenFit
                         break;
                     }
                     HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
-                //    MessageBox.Show("tabName: " + history1.tabName + " fileName: " + fileName);
+                    //    MessageBox.Show("tabName: " + history1.tabName + " fileName: " + fileName);
                     if (history1.tabName == fileName)
                     {
                         var itemToRemove = history.Single(h => h.fileName == history1.fileName);
                         history.Remove(itemToRemove);
-                     //   MessageBox.Show("Found entry?: " + history.Remove(itemToRemove));
-                     //    MessageBox.Show("Updated tabName: " + history1.tabName + " fileName: " + fileName);
+                        //   MessageBox.Show("Found entry?: " + history.Remove(itemToRemove));
+                        //    MessageBox.Show("Updated tabName: " + history1.tabName + " fileName: " + fileName);
 
                         history1.AccessedDate = newAccessed;
                         history.Add(history1);
@@ -254,7 +263,7 @@ namespace TabScreenFit
 
                 // sort by descending accessed date
                 history.Sort((y, x) => DateTime.Compare(x.AccessedDate, y.AccessedDate));
-             //   this.historyListBox.Items.Clear();
+                //   this.historyListBox.Items.Clear();
 
                 //MessageBox.Show("Using history json file: " + jsonFile);
                 foreach (HistoryEntry h in history)
@@ -272,7 +281,6 @@ namespace TabScreenFit
             }
         }
 
-        // LNB : this function doesnt work yet
         //   we want to read json file, update a specific field,  write changes to json file
         private void updateFontsizeJson(string fileName, Single newFontsize)
         {
@@ -310,11 +318,11 @@ namespace TabScreenFit
             }
         }
 
-        private void updateYscrollJson(string fileName, int newYscroll)
+        //   we want to read json file, update a specific field,  write changes to json file
+        private void updateViewJson(string fileName, string view)
         {
             try
             {
-               // tabTextBox1.ScrollToCaret
                 jsonText = File.ReadAllText(@jsonFile);
                 string newJsonText = "";
                 jsonReader = new JsonTextReader(new StringReader(jsonText));
@@ -328,9 +336,46 @@ namespace TabScreenFit
                     {
                         var itemToRemove = history.Single(h => h.fileName == history1.fileName);
                         history.Remove(itemToRemove);
-                  //      MessageBox.Show("Updated Y scroll to: " + newYscroll);
+
+                        history1.view = view;
+                        history.Add(history1);
+                    }
+
+                    newJsonText += "\n" + JsonConvert.SerializeObject(history1);
+
+                }
+                // write new json
+                // serialize JSON to a string and then write string to a file
+                File.WriteAllText(@jsonFile, newJsonText);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("History error" + jsonFile + " File errror: " + ex.ToString());
+            }
+        }
+
+        private void updateYscrollJson(string fileName, int newYscroll)
+        {
+            try
+            {
+                // tabTextBox1.ScrollToCaret
+                jsonText = File.ReadAllText(@jsonFile);
+                string newJsonText = "";
+                jsonReader = new JsonTextReader(new StringReader(jsonText));
+                jsonReader.SupportMultipleContent = true;
+
+                while (true)
+                {
+                    if (!jsonReader.Read()) break;
+                    HistoryEntry history1 = jsonSerializer.Deserialize<HistoryEntry>(jsonReader);
+                    if (history1.fileName == fileName)
+                    {
+                        var itemToRemove = history.Single(h => h.fileName == history1.fileName);
+                        history.Remove(itemToRemove);
+                        //      MessageBox.Show("Updated Y scroll to: " + newYscroll);
                         history1.yScroll = newYscroll;
-                  //      tabTextBox1.SelectionStart = newYscroll
+                        //      tabTextBox1.SelectionStart = newYscroll
 
                         history.Add(history1);
                     }
@@ -425,10 +470,10 @@ namespace TabScreenFit
             // if not , process file normally
             if (!duplicateFound) processNewFile(openFilename);
             else historyListBox.SelectedIndex = 0;
-        
+
             updateLeftPanel();
             currentViewSM();
-    }
+        }
 
         private void openTabButton_Click(object sender, EventArgs e)
         {
@@ -436,7 +481,8 @@ namespace TabScreenFit
             // tab that the user chose.
             if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                foreach (string openFilename in openFileDialog1.FileNames.Reverse()) {
+                foreach (string openFilename in openFileDialog1.FileNames.Reverse())
+                {
                     openTab(openFilename);
                 }
                 updateLeftPanel();
@@ -469,12 +515,12 @@ namespace TabScreenFit
             }
             Properties.Settings.Default.HistoryPanelWidth = this.historySplitContainer.SplitterDistance;
 
-      //      Properties.Settings.Default["HistoryPanelWidth"] = this.splitContainer1.SplitterDistance;
+            //      Properties.Settings.Default["HistoryPanelWidth"] = this.splitContainer1.SplitterDistance;
             Properties.Settings.Default.Save();
 
         }
 
-      //  int fontState = 1;
+        //  int fontState = 1;
         private void fontButton_Click(object sender, EventArgs e)
         {
             switch (fontName)
@@ -519,9 +565,9 @@ namespace TabScreenFit
 
         private void setupVisibleTabPanels(string text, int yScroll)
         {
-          //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+            //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
 
-         //   string[] textHighlighted = Regex.Split(text, "\r\n|\r|\n");
+            //   string[] textHighlighted = Regex.Split(text, "\r\n|\r|\n");
 
 
 
@@ -560,20 +606,20 @@ namespace TabScreenFit
                     firstCharOfLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo);
                     currentLine = tabTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
                     firstCharOfNextLineIndex = tabTextBox1.GetFirstCharIndexFromLine(lineToScrollTo + 1);
-             //       firstCharOfNextLineIndex = firstCharOfLineIndex;
+                    //       firstCharOfNextLineIndex = firstCharOfLineIndex;
                 }
 
                 this.tabTextBox1.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
                 this.tabTextBox1.SelectionBackColor = Color.Yellow;
                 this.tabTextBox1.Select(0, 0);
-                if (VISIBLE_TAB_PANELS == 2)
+                if ((VISIBLE_TAB_PANELS == 2) || (VISIBLE_TAB_PANELS == 3))
                 {
-       //             MessageBox.Show("Highlighted line: " + linesPerScreen +
-       //           " \n firstCharOfLineIndex: " + firstCharOfLineIndex + "\n currentLine " + currentLine);
+                    //             MessageBox.Show("Highlighted line: " + linesPerScreen +
+                    //           " \n firstCharOfLineIndex: " + firstCharOfLineIndex + "\n currentLine " + currentLine);
                     this.tabTextBox2.Select(firstCharOfLineIndex, firstCharOfNextLineIndex - firstCharOfLineIndex); // currentLine);
                     this.tabTextBox2.SelectionBackColor = Color.Yellow;
                     this.tabTextBox2.Select(0, 0);
-              //      tabTextBox2.AppendText("");
+                    //      tabTextBox2.AppendText("");
                 }
                 else if (VISIBLE_TAB_PANELS == 3)
                 {
@@ -588,15 +634,15 @@ namespace TabScreenFit
 
 
             int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(Path.GetFileNameWithoutExtension(currentFilename), StringComparison.Ordinal));
-               scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
+            scrollToLine(history.ElementAt(currentHistoryEntryIndex).yScroll);
         }
 
         List<string> searchHistoryItems = new List<string>();
         private void historyListBox_MouseDown(object sender, MouseEventArgs e)
         {
             updateYscrollInJson();
-      //      MessageBox.Show("Selected index: " + historyListBox.SelectedIndex +
-      //                       "\n text: " + historyListBox.SelectedItem.ToString());
+            //      MessageBox.Show("Selected index: " + historyListBox.SelectedIndex +
+            //                       "\n text: " + historyListBox.SelectedItem.ToString());
             if (searchInProgress)
             {
                 historyListBoxClicked = true;
@@ -608,7 +654,7 @@ namespace TabScreenFit
                     }
                     historyListBox.SetSelected(i, false);
                 }
-             //   MessageBox.Show("search history size: " + searchHistoryItems.Count);
+                //   MessageBox.Show("search history size: " + searchHistoryItems.Count);
                 historyListBox.SelectionMode = SelectionMode.One;
                 displayItem(searchHistoryItems.ElementAt(0));
             }
@@ -617,18 +663,18 @@ namespace TabScreenFit
                 historyListBoxClicked = false;
             }
             searchInProgress = false;
-            
+
 
         }
         // update y scroll in json before changing selection
         private void updateYscrollInJson()
         {
-  //          if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
+            //          if (tabTextBox1.GetPositionFromCharIndex(0).Y == 0) return;
             double pixelsPerLine = tabTextBox1.Height * 1.0 / linesPerScreen;
             //    int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
             // works ?        int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y/ pixelsPerLine));// * linesPerScreen);// / tabTextBox1.Height;
             int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
-        //    MessageBox.Show("updating yscrol");
+                                                                                                                                            //    MessageBox.Show("updating yscrol");
 
             // works ok        int linesToScroll = Convert.ToInt32(Math.Floor((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
 
@@ -654,8 +700,8 @@ namespace TabScreenFit
             {
                 historyListBox.SelectionMode = SelectionMode.One;
                 historyListBoxClicked = false;
-           //     MessageBox.Show("clicked item: " + historyListBox.SelectedValue);
-              //  return;
+                //     MessageBox.Show("clicked item: " + historyListBox.SelectedValue);
+                //  return;
             }
             //     updateLeftPanel(historyListBox.SelectedItem.ToString());
             // find selection in history List
@@ -670,7 +716,7 @@ namespace TabScreenFit
             int currentHistoryEntryIndex = history.FindIndex(h => h.tabName.Equals(itemName, StringComparison.Ordinal));
 
             //     MessageBox.Show("currentHistoryEntryIndex: " + currentHistoryEntryIndex);
-            if (currentFilename.Contains(itemName)) return;
+            //???     if (currentFilename.Contains(itemName)) return;
             currentFilename = history.ElementAt(currentHistoryEntryIndex).fileName;
 
             //       else currentHistoryEntryIndex = newHistoryEntryIndex;
@@ -713,10 +759,10 @@ namespace TabScreenFit
 
         private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
         {
-//            Properties.Settings.Default["HistoryPanelWidth"] = this.splitContainer1.SplitterDistance;
+            //            Properties.Settings.Default["HistoryPanelWidth"] = this.splitContainer1.SplitterDistance;
             Properties.Settings.Default.HistoryPanelWidth = this.historySplitContainer.SplitterDistance;
             Properties.Settings.Default.Save();
-        //    MessageBox.Show("width saved");
+            //    MessageBox.Show("width saved");
         }
 
         private void viewButton_Click(object sender, EventArgs e)
@@ -743,8 +789,10 @@ namespace TabScreenFit
             setupVisibleTabPanels(tabTextBox1.Text, linesToScroll);
 
             currentViewSM();
+
+            updateViewJson(currentFilename, currentView);
         }
-        
+
         private void currentViewSM()
         {
             switch (currentView)
@@ -762,27 +810,48 @@ namespace TabScreenFit
                     using (Graphics gt1 = tabTextBox1.CreateGraphics())
                     {
                         SizeF lineWidth;
-                        IList<float> lineWidths = new List<float>();
+                        List<float> lineWidths = new List<float>();
                         IList<int> lineWidths2 = new List<int>();
 
                         //      using (StringReader reader = new StringReader(tabTextBox1.Text))
-                        foreach (string line in currentTab)
+                        // should we maybe read only the visible screen to decide on the splitterdistance ???
+                        //         foreach (string line in currentTab.Skip(Convert.ToInt16(linesPerScreen)).Take(Convert.ToInt16(linesPerScreen)))
+
+                        foreach (string line in currentTab.Take(Convert.ToInt16(linesPerScreen)))
                         {
-                          //  string line;
-                         //   while ((line = reader.ReadLine()) != null)
-                         //   {
-                                lineWidth = gt1.MeasureString(line.Trim(), new System.Drawing.Font(fontName,
-                                     fontSize, System.Drawing.FontStyle.Regular,
-                                     System.Drawing.GraphicsUnit.Point, ((byte)(0))));
-                        //    MessageBox.Show(lineWidth.Width.ToString());
-                            if (lineWidth.Width > 10)   lineWidths.Add(lineWidth.Width);
+                            //  string line;
+                            //   while ((line = reader.ReadLine()) != null)
+                            //   {
+                            lineWidth = gt1.MeasureString(line.Trim(), new System.Drawing.Font(fontName,
+                                 fontSize, System.Drawing.FontStyle.Regular,
+                                 System.Drawing.GraphicsUnit.Point, ((byte)(0))));
+                            //    MessageBox.Show(lineWidth.Width.ToString());
+                            if (lineWidth.Width > 10) lineWidths.Add(lineWidth.Width);
                             int lineWidth2 = TextRenderer.MeasureText(line, tabTextBox1.Font).Width;
                             if (lineWidth2 > 10) lineWidths2.Add(lineWidth2);
 
                             //    }
                         }
+                        // playing with kmeans
+                        double[][] kmeans = new double[lineWidths.Count][];
+                        List<double> doubles = new List<double>(lineWidths.Count);
+                        int counter = 0;
+                        //       List<float> lstOrderedA = doubles.OrderBy(item => item).ToList();
+
+                        //     List<float> sortedLineWidths =  (from m in lineWidths order by m.propertyName).ToList();
+                        //      var list = (from t in lineWidths
+                        //                  orderby t.doubleVal).ToList();
+                        lineWidths.Sort();
+                        foreach (float f in lineWidths)
+                        {
+                            //   doubles.Add(Convert.ToDouble(f));
+                            kmeans[counter] = new double[] { Convert.ToDouble(f), Convert.ToDouble(f) };
+                            counter++;
+                        }
+                        if (lineWidths.Count > 0) KMeans.Main_method(kmeans);
+
                         float screenWidth = gt1.VisibleClipBounds.Width;
-                        
+
 
                         if (lineWidths.Count > 1)
                         {
@@ -790,14 +859,14 @@ namespace TabScreenFit
                             foreach (object o in lineWidths)
                             {
                                 // Add the fields you want to show here
-                                printString +=  o.ToString() + "    |    ";
+                                printString += o.ToString() + "    |    ";
                             }
-                       //     MessageBox.Show(printString);
+                            //     MessageBox.Show(printString);
 
                             // check median (widest or average??) line in tab
                             float median = MedianCalc.Median(lineWidths);
-                            float upperquartile = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count*3/4);
-                            float max = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1);
+                            float upperquartile = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count * 3 / 4);
+                            float max = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count - 1);
                             float maxminus1 = MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count - 2);
 
                             double stdDev = MedianCalc.StandardDeviation(lineWidths);
@@ -819,7 +888,7 @@ namespace TabScreenFit
                             //           "\n tabTextBox1 width: " + tabTextBox1.Width +
                             //           "\n lineWidths.Count: " + lineWidths.Count
                             //           );
-                            if ((linesInCurrentTab > linesPerScreen)) 
+                            if ((linesInCurrentTab > linesPerScreen))
                             {
                                 // adjust slider position of 
                                 ShowTwoTabPanels();
@@ -828,31 +897,32 @@ namespace TabScreenFit
                                 float newTabTabTextBoxWidth = max2; // Convert.ToInt16(max2);
                                 int count = 0;
                                 int compare = Convert.ToInt32(stdDev2) + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2);
-                              //  while (newTabTabTextBoxWidth <= (stdDev2 + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count)))
-                                 while (newTabTabTextBoxWidth > (compare))
+                                //  while (newTabTabTextBoxWidth <= (stdDev2 + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count)))
+                                while (newTabTabTextBoxWidth > (compare))
                                 {
-
                                     newTabTabTextBoxWidth = MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count); // max minus 1
                                     count++;
-                                    compare = Convert.ToInt32(stdDev2/10) + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count);
+                                    compare = Convert.ToInt32(stdDev2 / 2) + MedianCalc.NthOrderStatistic(lineWidths2, lineWidths2.Count - 2 - count);
                                 }
 
-                                tabSplitContainer.SplitterDistance = Convert.ToInt32(newTabTabTextBoxWidth);// 600; // Convert.ToInt16(median);
+                                // set splitter distance for 2 panel view
+                                //  tabSplitContainer.SplitterDistance = Convert.ToInt32(newTabTabTextBoxWidth);// 600; // Convert.ToInt16(median);
+                                tabSplitContainer.SplitterDistance = tabSplitContainer.Width / 2;
 
-                                       MessageBox.Show("MedianCalc.Median(lineWidths): " + MedianCalc.Median(lineWidths) + "   2) " + median2 +
-                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max-1: " + maxminus1 + "   2) " + max2minus1 +
-                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) min: " + MedianCalc.NthOrderStatistic(lineWidths,0) +// "   2) " + min2 +
-                                           "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max: " + MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count-1) + "   2) " + max2 +
-                                          "\n  stdDev: 1) " + stdDev + "   2) " +  stdDev2 +
-                                          "\n  average: 1) " + average + "   2) " + average2 +
-                                           "\n tabTextBox1 width: " + tabTextBox1.Width +
-                                           "\n screenWidth: " + screenWidth +
-                                           "\n tabSplitContainer.SplitterDistance: " + tabSplitContainer.SplitterDistance +
-                                           "\n tabSplitContainer.Width width: " + tabSplitContainer.Width +
-                                           "\n tabSplitContainer2.Width width: " + tabSplitContainer2.Width +
+                                if (1 == 0) MessageBox.Show("MedianCalc.Median(lineWidths): " + MedianCalc.Median(lineWidths) + "   2) " + median2 +
+                                      "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max-1: " + maxminus1 + "   2) " + max2minus1 +
+                                      "\n  MedianCalc.NthOrderStatistic(lineWidths,0) min: " + MedianCalc.NthOrderStatistic(lineWidths, 0) +// "   2) " + min2 +
+                                      "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max: " + MedianCalc.NthOrderStatistic(lineWidths, lineWidths.Count - 1) + "   2) " + max2 +
+                                      "\n  stdDev: 1) " + stdDev + "   2) " + stdDev2 +
+                                      "\n  average: 1) " + average + "   2) " + average2 +
+                                      "\n tabTextBox1 width: " + tabTextBox1.Width +
+                                      "\n screenWidth: " + screenWidth +
+                                      "\n tabSplitContainer.SplitterDistance: " + tabSplitContainer.SplitterDistance +
+                                      "\n tabSplitContainer.Width width: " + tabSplitContainer.Width +
+                                      "\n tabSplitContainer2.Width width: " + tabSplitContainer2.Width +
 
-                                           "\n lineWidths.Count: " + lineWidths.Count
-                                           );
+                                      "\n lineWidths.Count: " + lineWidths.Count
+                                      );
                                 return;
                             }
 
@@ -865,7 +935,7 @@ namespace TabScreenFit
                     {
                         ShowOneTabPanel();
                     }
-                    else if (linesInCurrentTab < (linesPerScreen*2))
+                    else if (linesInCurrentTab < (linesPerScreen * 2))
                     {
                         ShowTwoTabPanels();
 
@@ -904,8 +974,8 @@ namespace TabScreenFit
             fontSize += 0.75F;
             updateFontInTabbox();
             if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
-       //     Properties.Settings.Default["FontSize"] = fontSize;
-       //     Properties.Settings.Default.Save();
+            //     Properties.Settings.Default["FontSize"] = fontSize;
+            //     Properties.Settings.Default.Save();
         }
 
         private void fontSmallerButton_Click(object sender, EventArgs e)
@@ -913,8 +983,8 @@ namespace TabScreenFit
             fontSize -= 0.75F;
             updateFontInTabbox();
             if (currentFilename != "") updateFontsizeJson(currentFilename, fontSize);
-      //      Properties.Settings.Default["FontSize"] = fontSize;
-      //      Properties.Settings.Default.Save();
+            //      Properties.Settings.Default["FontSize"] = fontSize;
+            //      Properties.Settings.Default.Save();
         }
 
         private void moveToTopButton_Click(object sender, EventArgs e)
@@ -959,7 +1029,7 @@ namespace TabScreenFit
 
             double dlinesToScroll = (-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height);// * linesPerScreen);// / tabTextBox1.Height;
             int lineToScroll2 = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)tabTextBox1.Font.Height));// * linesPerScreen);// / tabTextBox1.Height;
-            int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height-1)));// * linesPerScreen);// / tabTextBox1.Height;
+            int lineToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height - 1)));// * linesPerScreen);// / tabTextBox1.Height;
 
             //      int lineToScroll = Convert.ToInt32(Math.Floor((-1.0 *( tabTextBox1.GetPositionFromCharIndex(0).Y+tabTextBox1.Font.Height) / (double)tabTextBox1.Font.Height)));// * linesPerScreen);// / tabTextBox1.Height;
 
@@ -967,7 +1037,7 @@ namespace TabScreenFit
 
             tabTextBox2.Text = "\n\n\n\n\n" + "selectionstart: " + tabTextBox1.SelectionStart.ToString() + "\n"
                    + ",\n tabTextBox1 height=" + tabTextBox1.Height + "\n"
-              //     + ",\n font height =" + tabTextBox1.Font. + "\n"
+                   //     + ",\n font height =" + tabTextBox1.Font. + "\n"
 
                    + ",\n GetPositionFromCharIndex(0).Y: " + tabTextBox1.GetPositionFromCharIndex(0).Y.ToString() + "\n"
                    + ",\n font height =" + tabTextBox1.Font.Height.ToString() + "\n"
@@ -996,8 +1066,8 @@ namespace TabScreenFit
         private void scrollToLine(int lineNum)
         {
             //      MessageBox.Show("lineNum=" + lineNum);
-          //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
-           
+            //  int linesPerScreen = Convert.ToInt32(((double)tabTextBox1.Height / (double)(tabTextBox1.Font.Height + 1)));
+
             int cix = tabTextBox1.GetFirstCharIndexFromLine(lineNum);
             int cix2 = tabTextBox1.GetFirstCharIndexFromLine(lineNum - 3 + Convert.ToInt16(linesPerScreen));
             if (cix2 == -1)
@@ -1005,9 +1075,9 @@ namespace TabScreenFit
                 cix2 = 0;
                 //  use one view instead of 2...
                 ShowOneTabPanel();
-         //       MessageBox.Show("ok");
+                //       MessageBox.Show("ok");
             }
-            int cix3 = tabTextBox1.GetFirstCharIndexFromLine((lineNum-3 + Convert.ToInt16(linesPerScreen)) *2);
+            int cix3 = tabTextBox1.GetFirstCharIndexFromLine((lineNum - 3 + Convert.ToInt16(linesPerScreen)) * 2);
             if (cix3 == -1)
             {
                 cix3 = 0;
@@ -1033,7 +1103,7 @@ namespace TabScreenFit
 
                 tabTextBox2.SelectionStart = 0;
                 tabTextBox2.ScrollToCaret();
-                tabTextBox2.SelectionStart = cix2 ;
+                tabTextBox2.SelectionStart = cix2;
                 tabTextBox2.ScrollToCaret();
             }
             else if (VISIBLE_TAB_PANELS == 3)
@@ -1101,8 +1171,8 @@ namespace TabScreenFit
             this.tabSplitContainer2.Panel2Collapsed = true;
             this.tabSplitContainer2.Panel2.Hide();
             VISIBLE_TAB_PANELS = 2;
-          //  this.tabSplitContainer.SplitterDistance = 550;
-         //   this.tabTextBox2.Text = tabTextBox1.Text;
+            //  this.tabSplitContainer.SplitterDistance = 550;
+            //   this.tabTextBox2.Text = tabTextBox1.Text;
 
         }
 
@@ -1113,7 +1183,7 @@ namespace TabScreenFit
             this.tabSplitContainer.Panel2.Show();
             this.tabSplitContainer2.Panel2Collapsed = false;
             this.tabSplitContainer2.Panel2.Show();
-     //       this.tabTextBox3.Text = tabTextBox1.Text;
+            //       this.tabTextBox3.Text = tabTextBox1.Text;
             VISIBLE_TAB_PANELS = 3;
         }
 
@@ -1131,7 +1201,7 @@ namespace TabScreenFit
 
         private void youtubeButton_Click(object sender, EventArgs e)
         {
-            string searchquery = historyListBox.SelectedItem.ToString().Replace(' ', '+').Replace('-','+');  // use + instead of spaces
+            string searchquery = historyListBox.SelectedItem.ToString().Replace(' ', '+').Replace('-', '+');  // use + instead of spaces
             // open youtube browser and search for tabname
             System.Diagnostics.Process.Start("https://www.youtube.com/results?search_query=" + searchquery);
 
@@ -1140,20 +1210,20 @@ namespace TabScreenFit
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-        //    foreach (string file in files) {
-                foreach (string s in files)
+            //    foreach (string file in files) {
+            foreach (string s in files)
+            {
+                if (!(Path.GetExtension(s) == ".txt"))
                 {
-                    if (!(Path.GetExtension(s) == ".txt"))
-                    {
-                        MessageBox.Show("File is not a text file.");
-                    }
-                    else if (!File.Exists(s))
-                    {
-                        MessageBox.Show("File does not exist.");
-                    }
-                    else
-                    {
-                        this.historyListBox.SelectedIndex = 1;
+                    MessageBox.Show("File is not a text file.");
+                }
+                else if (!File.Exists(s))
+                {
+                    MessageBox.Show("File does not exist.");
+                }
+                else
+                {
+                    this.historyListBox.SelectedIndex = 1;
                     //   MessageBox.Show("Processing " + s);
                     //    processNewFile(s);
                     openTab(s);
@@ -1163,12 +1233,12 @@ namespace TabScreenFit
                 }
 
             }
-       //     this.historyListBox.SelectedIndex = 0;
+            //     this.historyListBox.SelectedIndex = 0;
 
-         //    updateLeftPanel();
-                // select most recent tab to start
+            //    updateLeftPanel();
+            // select most recent tab to start
             //  if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
-         ///   }
+            ///   }
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)

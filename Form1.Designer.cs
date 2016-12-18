@@ -42,10 +42,10 @@
             this.panelButton = new System.Windows.Forms.Button();
             this.fontButton = new System.Windows.Forms.Button();
             this.tabSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.tabTextBox1 = new System.Windows.Forms.RichTextBox();
             this.tabSplitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.tabTextBox2 = new System.Windows.Forms.RichTextBox();
-            this.tabTextBox3 = new System.Windows.Forms.RichTextBox();
+            this.tabTextBox1 = new SyncTextBox();
+            this.tabTextBox2 = new SyncTextBox(); // new System.Windows.Forms.RichTextBox();
+            this.tabTextBox3 = new SyncTextBox();  //new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.historySplitContainer)).BeginInit();
             this.historySplitContainer.Panel1.SuspendLayout();
             this.historySplitContainer.Panel2.SuspendLayout();
