@@ -14,6 +14,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheCodeKing.ActiveButtons.Controls;
+
 
 namespace TabScreenFit
 {
@@ -48,6 +50,12 @@ namespace TabScreenFit
         int VISIBLE_TAB_PANELS;
         bool searchInProgress = false;
         bool historyListBoxClicked = false;
+        ActiveButton titleTogglePanelButton;
+        ActiveButton titleFontButton;
+        ActiveButton titleFontLargerButton;
+        ActiveButton titleFontSmallerButton;
+        ActiveButton titleViewButton;
+        ActiveButton titleOpenButton;
 
 
         public Form1(string[] args)
@@ -55,7 +63,6 @@ namespace TabScreenFit
             InitializeComponent();
             MyInitializer();
             if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
-
             // check if program is opened using "open with.." on a txt file
             if (!(args == null || args.Length == 0))
             {
@@ -65,25 +72,47 @@ namespace TabScreenFit
                     if (!(Path.GetExtension(s) == ".txt"))
                     {
                         MessageBox.Show("File is not a text file.");
+                        if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+
                     }
                     else if (!File.Exists(s))
                     {
                         MessageBox.Show("File does not exist.");
+                        if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+
                     }
                     else
                     {
                         this.historyListBox.SelectedIndex = 1;
                         //   MessageBox.Show("Processing " + s);
-                        processNewFile(s);
+                        bool duplicateFound = false;
+                        foreach (HistoryEntry h in history)
+                        {
+                            if (h.fileName == s)
+                            {
+                                //    MessageBox.Show("Duplicate found");
+                                duplicateFound = true;
+                                openTab(s);
+                                updateAccessedDateJson(Path.GetFileNameWithoutExtension(s), DateTime.Now);
+                                break;
+                            }
+                        }
+                        if (!duplicateFound) processNewFile(s);
 
 
                     }
                 }
-                this.historyListBox.SelectedIndex = 0;
+                
+             //   this.historyListBox.SelectedIndex = 0;
 
                 updateLeftPanel();
                 // select most recent tab to start
+              //  if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+            }
+            else
+            {
                 if (historyListBox.Items.Count > 0) this.historyListBox.SelectedIndex = 0;
+
             }
 
         }
@@ -133,7 +162,52 @@ namespace TabScreenFit
             // read tab history panel from json
             readJson();
 
+            AddButton(ref titleTogglePanelButton, "Toggle Left Panel On/Off", panelButton_Click);
+            AddButton(ref titleFontButton, "x             Font              x", fontButton_Click);
+            AddButton(ref titleFontLargerButton, "+", fontLargerButton_Click);
+            AddButton(ref titleFontSmallerButton, "-", fontSmallerButton_Click);
+            AddButton(ref titleViewButton, "x  View  x", viewButton_Click);
+            AddButton(ref titleOpenButton, "Open file (.txt)", openTabButton_Click);
             //     MessageBox.Show("myInitializer()");
+        }
+
+        /// <summary>
+        /// 	Helper method for adding items to the menu bar.
+        /// </summary>
+        /// <param name = "text"></param>
+        /// <param name = "handler"></param>
+        private void AddButton(ref ActiveButton  button, string text, EventHandler handler)
+        {
+            // get an instance of IActiveMenu used to attach
+            // buttons to the form
+            IActiveMenu menu = ActiveMenu.GetInstance(this);
+
+            // define a new button
+
+            button = new ActiveButton();
+            button.Text = text;
+            if (text == "x             Font              x")
+            {
+                menu.ToolTip.SetToolTip(button, "Font");
+
+            }
+            else if (text == "x  View  x")
+            {
+                menu.ToolTip.SetToolTip(button, "View");
+            }
+            else
+            {
+                menu.ToolTip.SetToolTip(button, button.Text);
+
+            }
+            // button.BackColor = colorSwitch.BackColor;
+            button.Click += handler;
+
+            // add the button to the menu
+            menu.Items.Add(button);
+
+         //   errorLabel.Text = "";
+         //   buttonText.Text = (buttonInt++).ToString();
         }
 
         private void readJson()
@@ -542,7 +616,8 @@ namespace TabScreenFit
             updateFontInTabbox();
             //     fontState++;
             //     if (fontState > 4) fontState = 1;
-            fontButton.Text = fontName;
+            //fontButton.Text = fontName;
+            titleFontButton.Text = fontName.PadRight(16);
             // TODO: Save current font to JSON
             //Properties.Settings.Default["SomeProperty"] = "Some Value";
             //Properties.Settings.Default.Save(); // Saves settings in application configuration file
@@ -730,7 +805,13 @@ namespace TabScreenFit
             fontSize = history.ElementAt(currentHistoryEntryIndex).fontSize;
             fontName = history.ElementAt(currentHistoryEntryIndex).fontName;
             updateFontInTabbox();
-            this.fontButton.Text = fontName;
+          //  this.fontButton.Text = fontName;
+            titleFontButton.Text = fontName.PadRight(16);
+
+
+            currentView = history.ElementAt(currentHistoryEntryIndex).view;
+           // this.viewButton.Text = currentView;
+            titleViewButton.Text = currentView;
 
             SendMessage(this.tabTextBox1.Handle, EM_GETRECT, IntPtr.Zero, ref tabTextBox1Rect);
             //        linesPerScreen = (tabTextBox1Rect.Bottom - tabTextBox1Rect.Top) * 1.0 / this.tabTextBox1.Font.Height;// works?
@@ -783,7 +864,8 @@ namespace TabScreenFit
                     currentView = "Auto";
                     break;
             }
-            viewButton.Text = currentView;
+            //viewButton.Text = currentView;
+            titleViewButton.Text = currentView;
             int linesToScroll = Convert.ToInt32((-1.0 * tabTextBox1.GetPositionFromCharIndex(0).Y / (double)(tabTextBox1.Font.Height + 1)));// * linesPerScreen);// / tabTextBox1.Height;
 
             setupVisibleTabPanels(tabTextBox1.Text, linesToScroll);
@@ -907,7 +989,7 @@ namespace TabScreenFit
 
                                 // set splitter distance for 2 panel view
                                 //  tabSplitContainer.SplitterDistance = Convert.ToInt32(newTabTabTextBoxWidth);// 600; // Convert.ToInt16(median);
-                                tabSplitContainer.SplitterDistance = tabSplitContainer.Width / 2;
+                                tabSplitContainer.SplitterDistance = (tabSplitContainer.Width - 2 * System.Windows.Forms.SystemInformation.VerticalScrollBarWidth) / 2;
 
                                 if (1 == 0) MessageBox.Show("MedianCalc.Median(lineWidths): " + MedianCalc.Median(lineWidths) + "   2) " + median2 +
                                       "\n  MedianCalc.NthOrderStatistic(lineWidths,0) max-1: " + maxminus1 + "   2) " + max2minus1 +
@@ -943,6 +1025,8 @@ namespace TabScreenFit
                     else
                     {
                         ShowThreeTabPanels();
+                        tabSplitContainer.SplitterDistance = (tabSplitContainer.Width) / 3;// + System.Windows.Forms.SystemInformation.VerticalScrollBarWidth;
+                        tabSplitContainer2.SplitterDistance = (tabSplitContainer2.Width) / 2 + System.Windows.Forms.SystemInformation.VerticalScrollBarWidth;
                     }
                     // int cix = tabTextBox1.GetFirstCharIndexFromLine(lineNum);
                     // int cix2 = tabTextBox1.GetFirstCharIndexFromLine(lineNum + linesPerScreen);
@@ -955,6 +1039,10 @@ namespace TabScreenFit
                     break;
                 case "3 splits":
                     ShowThreeTabPanels();
+                    //          tabSplitContainer.SplitterDistance = (tabSplitContainer.Width - 3 * System.Windows.Forms.SystemInformation.VerticalScrollBarWidth) / 3;
+                    tabSplitContainer.SplitterDistance = (tabSplitContainer.Width) / 3;// + System.Windows.Forms.SystemInformation.VerticalScrollBarWidth;
+                    tabSplitContainer2.SplitterDistance = (tabSplitContainer2.Width) / 2 + System.Windows.Forms.SystemInformation.VerticalScrollBarWidth;
+
                     break;
             }
         }
@@ -1185,6 +1273,7 @@ namespace TabScreenFit
             this.tabSplitContainer2.Panel2.Show();
             //       this.tabTextBox3.Text = tabTextBox1.Text;
             VISIBLE_TAB_PANELS = 3;
+
         }
 
 

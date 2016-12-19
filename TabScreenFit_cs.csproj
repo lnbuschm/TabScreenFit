@@ -55,6 +55,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ActiveButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ActiveItemsImpl.cs" />
+    <Compile Include="Controls\ActiveMenu.cs" />
+    <Compile Include="Controls\ActiveMenuImpl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\IActiveItem.cs" />
+    <Compile Include="Controls\IActiveItems.cs" />
+    <Compile Include="Controls\IActiveMenu.cs" />
+    <Compile Include="Controls\SpillOverMode.cs" />
+    <Compile Include="Controls\ThemedItem.cs" />
+    <Compile Include="Controls\Themes\Aero.cs" />
+    <Compile Include="Controls\Themes\ITheme.cs" />
+    <Compile Include="Controls\Themes\Standard.cs" />
+    <Compile Include="Controls\Themes\Styled.cs" />
+    <Compile Include="Controls\Themes\ThemeBase.cs" />
+    <Compile Include="Controls\Themes\ThemeFactory.cs" />
+    <Compile Include="Controls\Themes\XPStyle.cs" />
     <Compile Include="KMeans.cs" />
     <Compile Include="MedianCalc.cs" />
     <Compile Include="Form1.cs">
@@ -69,6 +89,8 @@
     <Compile Include="SyncTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Utils\ListWithEvents.cs" />
+    <Compile Include="Utils\Win32.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
